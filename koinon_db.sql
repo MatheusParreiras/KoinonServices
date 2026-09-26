@@ -1,237 +1,768 @@
--- =============================================================================
--- SCRIPT DO BANCO DE DADOS (DDL) - VERSÃO MYSQL 8.0+
--- Sistema de Gestão de Condomínios
--- Engine: InnoDB | Charset: utf8mb4
--- =============================================================================
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Tempo de geração: 25/09/2026 às 22:06
+-- Versão do servidor: 10.4.32-MariaDB
+-- Versão do PHP: 8.2.12
 
-SET FOREIGN_KEY_CHECKS = 0;
-
-DROP TABLE IF EXISTS Documento;
-DROP TABLE IF EXISTS Cobranca;
-DROP TABLE IF EXISTS Interacao;
-DROP TABLE IF EXISTS Publicacao;
-DROP TABLE IF EXISTS Ocorrencia;
-DROP TABLE IF EXISTS Encomenda;
-DROP TABLE IF EXISTS Reserva;
-DROP TABLE IF EXISTS Registro_Acesso;
-DROP TABLE IF EXISTS Autorizacao_Acesso;
-DROP TABLE IF EXISTS Visitante;
-DROP TABLE IF EXISTS Veiculo;
-DROP TABLE IF EXISTS Usuario;
-DROP TABLE IF EXISTS Unidade;
-
-SET FOREIGN_KEY_CHECKS = 1;
-
--- =============================================================================
--- 1. NÚCLEO E CADASTROS BASE
--- =============================================================================
-
--- TABELA 1: Unidade
-CREATE TABLE Unidade (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    identificacao VARCHAR(50) NOT NULL,
-    tipo_unidade VARCHAR(30) NOT NULL CHECK (tipo_unidade IN ('Residencial', 'Comercial', 'Vaga', 'Depósito')),
-    fracao_ideal DECIMAL(8,6) DEFAULT 0.000000,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Mapeia as frações autônomas do condomínio.';
-
--- TABELA 2: Usuario
-CREATE TABLE Usuario (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    unidade_id BIGINT,
-    nome VARCHAR(150) NOT NULL,
-    cpf VARCHAR(14) UNIQUE NOT NULL,
-    email VARCHAR(150) UNIQUE NOT NULL,
-    senha_hash VARCHAR(255) NOT NULL,
-    perfil VARCHAR(30) NOT NULL CHECK (perfil IN ('Morador', 'Sindico', 'Porteiro', 'Administrador')),
-    biometria_hash TEXT,
-    termo_lgpd BOOLEAN DEFAULT FALSE NOT NULL,
-    data_aceite_lgpd DATETIME,
-    ativo BOOLEAN DEFAULT TRUE NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_usuario_unidade FOREIGN KEY (unidade_id) REFERENCES Unidade(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Centraliza os usuários e vetores de biometria facial.';
-
--- TABELA 3: Veiculo
-CREATE TABLE Veiculo (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id BIGINT NOT NULL,
-    placa VARCHAR(10) UNIQUE NOT NULL,
-    modelo VARCHAR(50) NOT NULL,
-    cor VARCHAR(30) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_veiculo_usuario FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Cadastro de veículos para automação LPR.';
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
 
--- =============================================================================
--- 2. PORTARIA INTELIGENTE E CONTROLE DE ACESSO
--- =============================================================================
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- TABELA 4: Visitante
-CREATE TABLE Visitante (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(150) NOT NULL,
-    documento VARCHAR(20) NOT NULL,
-    foto_url TEXT,
-    tipo_visitante VARCHAR(30) DEFAULT 'Visitante' CHECK (tipo_visitante IN ('Visitante', 'Prestador_Servico', 'Entregador')),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Cadastro de visitantes e prestadores externos.';
+--
+-- Banco de dados: `koinon_service`
+--
 
--- TABELA 5: Autorizacao_Acesso
-CREATE TABLE Autorizacao_Acesso (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    visitante_id BIGINT NOT NULL,
-    unidade_id BIGINT NOT NULL,
-    usuario_autorizador_id BIGINT,
-    data_inicio DATETIME NOT NULL,
-    data_fim DATETIME NOT NULL,
-    qr_code VARCHAR(255) UNIQUE,
-    status VARCHAR(20) DEFAULT 'Ativo' CHECK (status IN ('Ativo', 'Expirado', 'Cancelado', 'Utilizado')),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_autorizacao_visitante FOREIGN KEY (visitante_id) REFERENCES Visitante(id) ON DELETE CASCADE,
-    CONSTRAINT fk_autorizacao_unidade FOREIGN KEY (unidade_id) REFERENCES Unidade(id) ON DELETE CASCADE,
-    CONSTRAINT fk_autorizacao_usuario FOREIGN KEY (usuario_autorizador_id) REFERENCES Usuario(id) ON DELETE SET NULL,
-    CONSTRAINT chk_periodo_valido CHECK (data_fim > data_inicio)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Chaves virtuais e QR Codes temporários.';
+-- --------------------------------------------------------
 
--- TABELA 6: Registro_Acesso
-CREATE TABLE Registro_Acesso (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id BIGINT,
-    visitante_id BIGINT,
-    data_hora DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    direcao VARCHAR(10) NOT NULL CHECK (direcao IN ('Entrada', 'Saida')),
-    metodo_leitura VARCHAR(30) NOT NULL CHECK (metodo_leitura IN ('Facial', 'QR_Code', 'Placa_LPR', 'Tag_RFID', 'Manual')),
-    foto_evento_url TEXT,
-    observacao TEXT,
-    CONSTRAINT fk_registro_usuario FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE SET NULL,
-    CONSTRAINT fk_registro_visitante FOREIGN KEY (visitante_id) REFERENCES Visitante(id) ON DELETE SET NULL,
-    CONSTRAINT chk_registro_pessoa CHECK (usuario_id IS NOT NULL OR visitante_id IS NOT NULL)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Log de acessos da portaria.';
+--
+-- Estrutura para tabela `autorizacao_acesso`
+--
 
+CREATE TABLE `autorizacao_acesso` (
+  `id` bigint(20) NOT NULL,
+  `visitante_id` bigint(20) NOT NULL,
+  `unidade_id` bigint(20) NOT NULL,
+  `usuario_autorizador_id` bigint(20) DEFAULT NULL,
+  `data_inicio` datetime NOT NULL,
+  `data_fim` datetime NOT NULL,
+  `qr_code` varchar(255) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'Ativo' CHECK (`status` in ('Ativo','Expirado','Cancelado','Utilizado')),
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ;
 
--- =============================================================================
--- 3. GESTÃO DE FACILITIES
--- =============================================================================
+--
+-- Despejando dados para a tabela `autorizacao_acesso`
+--
 
--- TABELA 7: Reserva
-CREATE TABLE Reserva (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id BIGINT NOT NULL,
-    espaco_nome VARCHAR(100) NOT NULL,
-    data_inicio DATETIME NOT NULL,
-    data_fim DATETIME NOT NULL,
-    status VARCHAR(20) DEFAULT 'Pendente' CHECK (status IN ('Pendente', 'Confirmada', 'Cancelada', 'Concluida')),
-    valor_taxa DECIMAL(10,2) DEFAULT 0.00 NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_reserva_usuario FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE CASCADE,
-    CONSTRAINT chk_reserva_periodo CHECK (data_fim > data_inicio)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Reservas de áreas comuns.';
+INSERT INTO `autorizacao_acesso` (`id`, `visitante_id`, `unidade_id`, `usuario_autorizador_id`, `data_inicio`, `data_fim`, `qr_code`, `status`, `created_at`) VALUES
+(26, 16, 3, NULL, '2026-09-24 19:54:00', '2026-09-24 20:54:00', 'KOINON-BC09FE6DBA44FB90', 'Utilizado', '2026-09-24 19:54:24');
 
--- TABELA 8: Encomenda
-CREATE TABLE Encomenda (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    unidade_id BIGINT NOT NULL,
-    usuario_recebedor_id BIGINT,
-    descricao TEXT NOT NULL,
-    foto_url TEXT,
-    codigo_rastreio VARCHAR(50),
-    data_recebimento DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    data_retirada DATETIME,
-    status VARCHAR(20) DEFAULT 'Aguardando_Retirada' CHECK (status IN ('Aguardando_Retirada', 'Entregue', 'Devolvido')),
-    CONSTRAINT fk_encomenda_unidade FOREIGN KEY (unidade_id) REFERENCES Unidade(id) ON DELETE CASCADE,
-    CONSTRAINT fk_encomenda_usuario FOREIGN KEY (usuario_recebedor_id) REFERENCES Usuario(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Controle de recebimento e entrega de encomendas.';
+-- --------------------------------------------------------
 
--- TABELA 9: Ocorrencia
-CREATE TABLE Ocorrencia (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id BIGINT NOT NULL,
-    tipo VARCHAR(50) NOT NULL,
-    titulo VARCHAR(150) NOT NULL,
-    descricao TEXT NOT NULL,
-    status VARCHAR(20) DEFAULT 'Aberta' CHECK (status IN ('Aberta', 'Em_Andamento', 'Resolvida', 'Cancelada')),
-    foto_url TEXT,
-    data_abertura DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    data_fechamento DATETIME,
-    CONSTRAINT fk_ocorrencia_usuario FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Chamados de moradores e manutenção.';
+--
+-- Estrutura para tabela `cobranca`
+--
 
+CREATE TABLE `cobranca` (
+  `id` bigint(20) NOT NULL,
+  `unidade_id` bigint(20) NOT NULL,
+  `tipo_cobranca` varchar(30) NOT NULL DEFAULT 'Taxa_Condominial',
+  `mes_referencia` varchar(7) NOT NULL,
+  `descricao` varchar(150) NOT NULL DEFAULT 'Taxa Condominial Ordinária',
+  `valor` decimal(10,2) NOT NULL,
+  `vencimento` date NOT NULL,
+  `linha_digitavel` varchar(60) DEFAULT NULL,
+  `link_boleto` text DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'Pendente' CHECK (`status` in ('Pendente','Pago','Vencido','Cancelado')),
+  `data_pagamento` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Boletos e controle financeiro.';
 
--- =============================================================================
--- 4. COMUNICAÇÃO E SOCIAL
--- =============================================================================
+--
+-- Despejando dados para a tabela `cobranca`
+--
 
--- TABELA 10: Publicacao
-CREATE TABLE Publicacao (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id BIGINT NOT NULL,
-    categoria VARCHAR(30) NOT NULL CHECK (categoria IN ('Aviso_Sindico', 'Feed_Social', 'Classificados', 'Achados_Perdidos', 'Enquete')),
-    titulo VARCHAR(150) NOT NULL,
-    conteudo TEXT NOT NULL,
-    midia_url TEXT,
-    preco DECIMAL(10,2),
-    status VARCHAR(20) DEFAULT 'Ativo' CHECK (status IN ('Ativo', 'Encerrado', 'Arquivado', 'Removido')),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_publicacao_usuario FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Feed social, avisos, classificados e enquetes.';
+INSERT INTO `cobranca` (`id`, `unidade_id`, `tipo_cobranca`, `mes_referencia`, `descricao`, `valor`, `vencimento`, `linha_digitavel`, `link_boleto`, `status`, `data_pagamento`, `created_at`) VALUES
+(14, 3, 'Multa', '2026-09', 'Reserva #19 - Churrasqueira', 50.00, '2026-09-25', NULL, NULL, 'Pago', '2026-09-24 11:07:47', '2026-09-24 11:06:49'),
+(16, 4, 'Taxa_Condominial', '2026-09', 'fgh', 150.00, '2026-09-26', '56345634563457354634563456345634', 'http://localhost/koinon-service-v3/view/esqueci_senha.php', 'Pago', '2026-09-25 10:17:28', '2026-09-25 00:47:11'),
+(17, 4, 'Reserva', '2026-09', 'Reserva #21 - Churrasqueira', 50.00, '2026-09-25', NULL, NULL, 'Cancelado', NULL, '2026-09-25 08:53:43');
 
--- TABELA 11: Interacao
-CREATE TABLE Interacao (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    publicacao_id BIGINT NOT NULL,
-    usuario_id BIGINT NOT NULL,
-    tipo_interacao VARCHAR(20) NOT NULL CHECK (tipo_interacao IN ('Curtida', 'Comentario', 'Voto_Enquete')),
-    conteudo_texto TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_interacao_publicacao FOREIGN KEY (publicacao_id) REFERENCES Publicacao(id) ON DELETE CASCADE,
-    CONSTRAINT fk_interacao_usuario FOREIGN KEY (usuario_id) REFERENCES Usuario(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Curtidas, comentários e votos de enquetes.';
+-- --------------------------------------------------------
 
+--
+-- Estrutura para tabela `documento`
+--
 
--- =============================================================================
--- 5. FINANCEIRO E GOVERNANÇA
--- =============================================================================
+CREATE TABLE `documento` (
+  `id` bigint(20) NOT NULL,
+  `usuario_upload_id` bigint(20) DEFAULT NULL,
+  `titulo` varchar(150) NOT NULL,
+  `categoria` varchar(50) NOT NULL CHECK (`categoria` in ('Atas','Convenção','Regimento_Interno','Prestação_Contas','Contrato','Outros')),
+  `descricao` text DEFAULT NULL,
+  `arquivo_url` text NOT NULL,
+  `data_upload` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Atas, convenções e relatórios em PDF.';
 
--- TABELA 12: Cobranca
-CREATE TABLE Cobranca (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    unidade_id BIGINT NOT NULL,
-    mes_referencia VARCHAR(7) NOT NULL,
-    descricao VARCHAR(150) DEFAULT 'Taxa Condominial Ordinária' NOT NULL,
-    valor DECIMAL(10,2) NOT NULL,
-    vencimento DATE NOT NULL,
-    linha_digitavel VARCHAR(60),
-    link_boleto TEXT,
-    status VARCHAR(20) DEFAULT 'Pendente' CHECK (status IN ('Pendente', 'Pago', 'Vencido', 'Cancelado')),
-    data_pagamento DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_cobranca_unidade FOREIGN KEY (unidade_id) REFERENCES Unidade(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Boletos e controle financeiro.';
+--
+-- Despejando dados para a tabela `documento`
+--
 
--- TABELA 13: Documento
-CREATE TABLE Documento (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_upload_id BIGINT,
-    titulo VARCHAR(150) NOT NULL,
-    categoria VARCHAR(50) NOT NULL CHECK (categoria IN ('Atas', 'Convenção', 'Regimento_Interno', 'Prestação_Contas', 'Contrato', 'Outros')),
-    descricao TEXT,
-    arquivo_url TEXT NOT NULL,
-    data_upload DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT fk_documento_usuario FOREIGN KEY (usuario_upload_id) REFERENCES Usuario(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Atas, convenções e relatórios em PDF.';
+INSERT INTO `documento` (`id`, `usuario_upload_id`, `titulo`, `categoria`, `descricao`, `arquivo_url`, `data_upload`) VALUES
+(4, NULL, 'asdf', 'Outros', 'asdfasdf', '../../assets/documentos/documento_20260924_125647_6ab5483fa6c33.pdf', '2026-09-24 12:56:47');
 
+-- --------------------------------------------------------
 
--- =============================================================================
--- ÍNDICES DE DESEMPENHO (PERFORMANCE INDEXES)
--- =============================================================================
+--
+-- Estrutura para tabela `encomenda`
+--
 
-CREATE INDEX idx_usuario_unidade ON Usuario(unidade_id);
-CREATE INDEX idx_usuario_cpf ON Usuario(cpf);
-CREATE INDEX idx_veiculo_placa ON Veiculo(placa);
-CREATE INDEX idx_autorizacao_qr ON Autorizacao_Acesso(qr_code);
-CREATE INDEX idx_registro_acesso_data ON Registro_Acesso(data_hora DESC);
-CREATE INDEX idx_publicacao_categoria ON Publicacao(categoria);
-CREATE INDEX idx_cobranca_unidade_status ON Cobranca(unidade_id, status);
-CREATE INDEX idx_encomenda_unidade_status ON Encomenda(unidade_id, status);
+CREATE TABLE `encomenda` (
+  `id` bigint(20) NOT NULL,
+  `unidade_id` bigint(20) NOT NULL,
+  `usuario_recebedor_id` bigint(20) DEFAULT NULL,
+  `descricao` text NOT NULL,
+  `foto_url` text DEFAULT NULL,
+  `codigo_rastreio` varchar(50) DEFAULT NULL,
+  `data_recebimento` datetime NOT NULL DEFAULT current_timestamp(),
+  `data_retirada` datetime DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'Aguardando_Retirada' CHECK (`status` in ('Aguardando_Retirada','Entregue','Devolvido'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Controle de recebimento e entrega de encomendas.';
+
+--
+-- Despejando dados para a tabela `encomenda`
+--
+
+INSERT INTO `encomenda` (`id`, `unidade_id`, `usuario_recebedor_id`, `descricao`, `foto_url`, `codigo_rastreio`, `data_recebimento`, `data_retirada`, `status`) VALUES
+(9, 3, NULL, 'rfter', '../../assets/img/encomendas/encomenda_20260924_125338_b7c9a1a77ab817a2.jpeg', '75675467456', '2026-09-24 12:53:17', '2026-09-25 16:54:42', 'Entregue');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `enquete_opcao`
+--
+
+CREATE TABLE `enquete_opcao` (
+  `id` bigint(20) NOT NULL,
+  `publicacao_id` bigint(20) NOT NULL,
+  `descricao` varchar(150) NOT NULL,
+  `ordem` int(11) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Opções disponíveis para as publicações do tipo enquete.';
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `interacao`
+--
+
+CREATE TABLE `interacao` (
+  `id` bigint(20) NOT NULL,
+  `publicacao_id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) NOT NULL,
+  `tipo_interacao` varchar(20) NOT NULL CHECK (`tipo_interacao` in ('Curtida','Comentario','Voto_Enquete')),
+  `enquete_opcao_id` bigint(20) DEFAULT NULL,
+  `conteudo_texto` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Curtidas, comentários e votos de enquetes.';
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `local_reserva`
+--
+
+CREATE TABLE `local_reserva` (
+  `id` bigint(20) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `capacidade` int(11) NOT NULL DEFAULT 1,
+  `valor` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `gratuito` tinyint(1) NOT NULL DEFAULT 1,
+  `duracao_minutos_minima` int(11) NOT NULL DEFAULT 60,
+  `duracao_minutos_maxima` int(11) NOT NULL DEFAULT 1440,
+  `horario_inicio` time NOT NULL DEFAULT '08:00:00',
+  `horario_fim` time NOT NULL DEFAULT '23:00:00',
+  `antecedencia_min_dias` int(11) NOT NULL DEFAULT 0,
+  `antecedencia_max_dias` int(11) NOT NULL DEFAULT 30,
+  `limite_reservas_unidade` int(11) NOT NULL DEFAULT 1,
+  `periodo_limite` varchar(10) NOT NULL DEFAULT 'Dia',
+  `domingo` tinyint(1) NOT NULL DEFAULT 0,
+  `segunda` tinyint(1) NOT NULL DEFAULT 1,
+  `terca` tinyint(1) NOT NULL DEFAULT 1,
+  `quarta` tinyint(1) NOT NULL DEFAULT 1,
+  `quinta` tinyint(1) NOT NULL DEFAULT 1,
+  `sexta` tinyint(1) NOT NULL DEFAULT 1,
+  `sabado` tinyint(1) NOT NULL DEFAULT 1,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `fotos` longtext DEFAULT NULL
+) ;
+
+--
+-- Despejando dados para a tabela `local_reserva`
+--
+
+INSERT INTO `local_reserva` (`id`, `nome`, `descricao`, `capacidade`, `valor`, `gratuito`, `duracao_minutos_minima`, `duracao_minutos_maxima`, `horario_inicio`, `horario_fim`, `antecedencia_min_dias`, `antecedencia_max_dias`, `limite_reservas_unidade`, `periodo_limite`, `domingo`, `segunda`, `terca`, `quarta`, `quinta`, `sexta`, `sabado`, `ativo`, `created_at`, `updated_at`, `fotos`) VALUES
+(1, 'TESTE2', 'salao de fe', 1, 150.00, 0, 60, 1440, '08:00:00', '23:00:00', 10, 30, 1, 'Mes', 0, 1, 1, 1, 1, 1, 1, 0, '2026-09-22 19:01:58', '2026-09-25 11:52:53', NULL),
+(2, 'QUADRA', 'SDFGSDF', 10, 0.00, 1, 60, 1440, '08:00:00', '23:00:00', 1, 1, 1, 'Dia', 1, 1, 1, 1, 1, 1, 1, 1, '2026-09-22 22:48:13', '2026-09-24 13:06:14', NULL),
+(3, 'Salão de Festa', '', 500, 150.00, 0, 120, 360, '08:00:00', '23:00:00', 0, 30, 1, 'Dia', 1, 1, 1, 1, 1, 1, 1, 0, '2026-09-23 11:38:12', '2026-09-25 11:52:55', NULL),
+(4, 'Churrasqueira', '', 20, 50.00, 0, 240, 360, '08:00:00', '23:00:00', 0, 30, 2, 'Dia', 1, 1, 1, 1, 1, 1, 1, 1, '2026-09-23 15:05:39', '2026-09-25 08:51:09', '[\"uploads/locais/4/8564487feec99fd0.jpg\",\"uploads/locais/4/e34de253314999b8.jpg\",\"uploads/locais/4/2edce94680f8ed71.jpg\",\"uploads/locais/4/bc8f2d5a6bcdd335.jpg\",\"uploads/locais/4/be8008fd8bda29d6.jpg\",\"uploads/locais/4/fd2b68a97edcf5df.jpg\",\"uploads/locais/4/8cf27916d009ce75.jpg\",\"uploads/locais/4/0c2aa68695a12924.jpg\"]');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `notificacao`
+--
+
+CREATE TABLE `notificacao` (
+  `id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) NOT NULL,
+  `publicacao_id` bigint(20) DEFAULT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `titulo` varchar(150) NOT NULL,
+  `mensagem` text NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `lida` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `notificacao`
+--
+
+INSERT INTO `notificacao` (`id`, `usuario_id`, `publicacao_id`, `tipo`, `titulo`, `mensagem`, `link`, `lida`, `created_at`) VALUES
+(38, 12, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-23 09:45:51'),
+(41, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço QUADRA teve seu status alterado para: Cancelada.', 'nova_reserva.php?id=11', 1, '2026-09-23 11:38:55'),
+(52, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Salão de Festa. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-23 13:29:48'),
+(54, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Salão de Festa teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=13', 1, '2026-09-23 13:30:59'),
+(60, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço QUADRA. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-23 13:55:55'),
+(63, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Salão de Festa. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-23 13:56:21'),
+(66, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Churrasqueira. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-23 15:28:04'),
+(68, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=16', 1, '2026-09-23 16:02:38'),
+(73, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço QUADRA. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-23 23:12:31'),
+(76, 12, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-23 23:16:10'),
+(80, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Concluida.', 'nova_reserva.php?id=16', 1, '2026-09-23 23:30:16'),
+(83, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Salão de Festa. Status: Cancelada.', 'nova_reserva.php?id=15', 1, '2026-09-23 23:30:20'),
+(97, 12, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-24 00:06:56'),
+(102, 12, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-24 09:07:25'),
+(106, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Churrasqueira. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-24 09:08:39'),
+(111, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=18', 1, '2026-09-24 09:34:02'),
+(114, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Churrasqueira. Status: Confirmada.', 'nova_reserva.php?id=18', 1, '2026-09-24 09:34:11'),
+(133, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Churrasqueira. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-24 11:06:22'),
+(135, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=19', 1, '2026-09-24 11:06:49'),
+(145, 12, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-24 12:44:29'),
+(149, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Churrasqueira. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-24 12:45:34'),
+(154, 12, NULL, 'Ocorrencia', '⚠️ Atualização de ocorrência', 'A ocorrência sdf está com status: Cancelada.', 'ocorrencias.php?id=8', 1, '2026-09-24 12:55:29'),
+(162, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=20', 1, '2026-09-24 13:05:12'),
+(165, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Churrasqueira. Status: Confirmada.', 'nova_reserva.php?id=20', 1, '2026-09-24 13:05:46'),
+(173, 12, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-24 19:54:24'),
+(178, 12, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-25 00:10:20'),
+(184, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Churrasqueira. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-25 08:52:32'),
+(187, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=21', 1, '2026-09-25 08:53:43'),
+(191, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Churrasqueira. Status: Pendente.', 'nova_reserva.php?id=21', 1, '2026-09-25 09:20:26'),
+(195, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Cancelada.', 'nova_reserva.php?id=21', 1, '2026-09-25 09:20:38'),
+(199, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Churrasqueira. Status: Pendente.', 'nova_reserva.php?id=21', 1, '2026-09-25 09:20:43');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `ocorrencia`
+--
+
+CREATE TABLE `ocorrencia` (
+  `id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) NOT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `titulo` varchar(150) NOT NULL,
+  `descricao` text NOT NULL,
+  `status` varchar(20) DEFAULT 'Aberta' CHECK (`status` in ('Aberta','Em_Andamento','Resolvida','Cancelada')),
+  `foto_url` text DEFAULT NULL,
+  `data_abertura` datetime NOT NULL DEFAULT current_timestamp(),
+  `data_fechamento` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Chamados de moradores e manutenção.';
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `publicacao`
+--
+
+CREATE TABLE `publicacao` (
+  `id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) NOT NULL,
+  `categoria` varchar(30) NOT NULL CHECK (`categoria` in ('Aviso_Sindico','Feed_Social','Classificados','Achados_Perdidos','Enquete')),
+  `tipo_achado` enum('Achado','Perdido') DEFAULT NULL,
+  `titulo` varchar(150) NOT NULL,
+  `conteudo` text NOT NULL,
+  `local_ocorrencia` varchar(200) DEFAULT NULL,
+  `data_ocorrencia` date DEFAULT NULL,
+  `midia_url` text DEFAULT NULL,
+  `preco` decimal(10,2) DEFAULT NULL,
+  `status` varchar(20) DEFAULT 'Ativo' CHECK (`status` in ('Ativo','Encerrado','Arquivado','Removido')),
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Feed social, avisos, classificados e enquetes.';
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `registro_acesso`
+--
+
+CREATE TABLE `registro_acesso` (
+  `id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) DEFAULT NULL,
+  `visitante_id` bigint(20) DEFAULT NULL,
+  `data_hora` datetime NOT NULL DEFAULT current_timestamp(),
+  `direcao` varchar(10) NOT NULL CHECK (`direcao` in ('Entrada','Saida')),
+  `metodo_leitura` varchar(30) NOT NULL CHECK (`metodo_leitura` in ('Facial','QR_Code','Placa_LPR','Tag_RFID','Manual')),
+  `foto_evento_url` text DEFAULT NULL,
+  `observacao` text DEFAULT NULL,
+  `autorizado_por_usuario_id` bigint(20) DEFAULT NULL
+) ;
+
+--
+-- Despejando dados para a tabela `registro_acesso`
+--
+
+INSERT INTO `registro_acesso` (`id`, `usuario_id`, `visitante_id`, `data_hora`, `direcao`, `metodo_leitura`, `foto_evento_url`, `observacao`, `autorizado_por_usuario_id`) VALUES
+(23, NULL, NULL, '2026-09-24 12:15:24', 'Entrada', 'Manual', NULL, 'Morador a pé.', NULL),
+(24, NULL, NULL, '2026-09-24 12:15:37', 'Saida', 'Placa_LPR', NULL, 'Morador em veículo: SDFSD5425 — Prisma', NULL),
+(26, NULL, NULL, '2026-09-24 12:16:00', 'Saida', 'Manual', NULL, 'saida', NULL),
+(27, NULL, NULL, '2026-09-24 12:16:00', 'Entrada', 'QR_Code', NULL, 'teste morador', NULL),
+(28, NULL, NULL, '2026-09-24 12:48:03', 'Entrada', 'QR_Code', NULL, 'Entrada autorizada através de QR Code.', NULL),
+(29, NULL, 16, '2026-09-24 19:55:32', 'Entrada', 'QR_Code', NULL, 'Entrada autorizada através de QR Code.', NULL),
+(30, NULL, NULL, '2026-09-25 09:43:28', 'Entrada', 'Manual', NULL, 'Morador a pé.', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `reserva`
+--
+
+CREATE TABLE `reserva` (
+  `id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) NOT NULL,
+  `local_reserva_id` bigint(20) DEFAULT NULL,
+  `espaco_nome` varchar(100) NOT NULL,
+  `quantidade_pessoas` int(11) NOT NULL DEFAULT 1,
+  `data_inicio` datetime NOT NULL,
+  `data_fim` datetime NOT NULL,
+  `status` varchar(20) DEFAULT 'Pendente' CHECK (`status` in ('Pendente','Confirmada','Cancelada','Concluida')),
+  `valor_taxa` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `unidade`
+--
+
+CREATE TABLE `unidade` (
+  `id` bigint(20) NOT NULL,
+  `identificacao` varchar(50) NOT NULL,
+  `tipo_unidade` varchar(30) NOT NULL CHECK (`tipo_unidade` in ('Residencial','Comercial','Vaga','Depósito')),
+  `fracao_ideal` decimal(8,6) DEFAULT 0.000000,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `quantidade_vagas` tinyint(3) UNSIGNED NOT NULL DEFAULT 1 CHECK (`quantidade_vagas` between 0 and 2)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Mapeia as frações autônomas do condomínio.';
+
+--
+-- Despejando dados para a tabela `unidade`
+--
+
+INSERT INTO `unidade` (`id`, `identificacao`, `tipo_unidade`, `fracao_ideal`, `created_at`, `quantidade_vagas`) VALUES
+(3, 'Bloco 1 - 102', 'Residencial', 0.000000, '2026-09-23 19:33:04', 1),
+(4, 'Bloco A - 106', 'Residencial', 0.000000, '2026-09-24 13:02:23', 1),
+(5, 'Bloco A - 107', 'Residencial', 0.000000, '2026-09-25 09:19:52', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `usuario`
+--
+
+CREATE TABLE `usuario` (
+  `id` bigint(20) NOT NULL,
+  `unidade_id` bigint(20) DEFAULT NULL,
+  `nome` varchar(150) NOT NULL,
+  `cpf` varchar(14) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `telefone` varchar(20) DEFAULT NULL,
+  `senha_hash` varchar(255) NOT NULL,
+  `senha_definida` tinyint(1) NOT NULL DEFAULT 1,
+  `primeiro_acesso` tinyint(1) NOT NULL DEFAULT 0,
+  `perfil` varchar(30) NOT NULL CHECK (`perfil` in ('Morador','Sindico','Porteiro','Administrador')),
+  `biometria_hash` text DEFAULT NULL,
+  `termo_lgpd` tinyint(1) NOT NULL DEFAULT 0,
+  `data_aceite_lgpd` datetime DEFAULT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Centraliza os usuários e vetores de biometria facial.';
+
+--
+-- Despejando dados para a tabela `usuario`
+--
+
+INSERT INTO `usuario` (`id`, `unidade_id`, `nome`, `cpf`, `email`, `telefone`, `senha_hash`, `senha_definida`, `primeiro_acesso`, `perfil`, `biometria_hash`, `termo_lgpd`, `data_aceite_lgpd`, `ativo`, `created_at`) VALUES
+(12, NULL, 'TESTE ADM', '151561256', 'TESTEADM@GMAIL.COM', NULL, '$2y$10$P3PQ1WdNRxjxlYe3TNAnnOo3Z66gzE0Zr2WIM1s5lcbXfQUFDId/C', 1, 0, 'Administrador', NULL, 1, '2026-09-21 02:25:31', 1, '2026-09-20 21:25:31'),
+(21, NULL, 'Administrador', '01234567890', 'admin@koinon.com', NULL, '$2y$10$HOHPWVwHjnzYEniwFpYNDeDfRsbnS8HqfqfGb4awP4zyRAtp8EoAm', 0, 1, 'Administrador', NULL, 0, NULL, 1, '2026-09-25 11:31:12'),
+(22, 5, 'Joao Morador', '78945612300', 'testemorador@gmail.com', '61999999999', '$2y$10$uTRXCpklQlGLZgicPf4i.e/QzsTnnqA5EC0X/6TLU9H7AptX6ppMe', 1, 0, 'Morador', NULL, 1, '2026-09-25 11:39:46', 1, '2026-09-25 11:35:12'),
+(23, NULL, 'Joao Porteiro', '78945612301', 'TESTEPORTEIRO@GMAIL.COM', '61999999999', '$2y$10$CQJVwEiYkCW2KxhCbycDvuf/A66Mrh4nNDX/K60NyYry7MuRDwbeK', 1, 0, 'Porteiro', NULL, 1, '2026-09-25 11:44:24', 1, '2026-09-25 11:37:03'),
+(24, NULL, 'Joao Sindico', '78945612303', 'TESTESINDICO@GMAIL.COM', '61999999999', '$2y$10$r/JYWVHCqmlk4icnnvi4R.dvrHeY2xgtv/l278eNvEQDukZtGiBHy', 1, 0, 'Sindico', NULL, 1, '2026-09-25 11:52:10', 1, '2026-09-25 11:38:00');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `veiculo`
+--
+
+CREATE TABLE `veiculo` (
+  `id` bigint(20) NOT NULL,
+  `usuario_id` bigint(20) NOT NULL,
+  `placa` varchar(10) NOT NULL,
+  `modelo` varchar(50) NOT NULL,
+  `cor` varchar(30) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `status_aprovacao` varchar(20) NOT NULL DEFAULT 'Pendente' CHECK (`status_aprovacao` in ('Pendente','Aprovado','Rejeitado'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Cadastro de veículos para automação LPR.';
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `visitante`
+--
+
+CREATE TABLE `visitante` (
+  `id` bigint(20) NOT NULL,
+  `nome` varchar(150) NOT NULL,
+  `documento` varchar(20) NOT NULL,
+  `foto_url` text DEFAULT NULL,
+  `tipo_visitante` varchar(30) DEFAULT 'Visitante' CHECK (`tipo_visitante` in ('Visitante','Prestador_Servico','Entregador')),
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Cadastro de visitantes e prestadores externos.';
+
+--
+-- Despejando dados para a tabela `visitante`
+--
+
+INSERT INTO `visitante` (`id`, `nome`, `documento`, `foto_url`, `tipo_visitante`, `created_at`) VALUES
+(16, 'LUCAS', '5463456345', '../../assets/img/visitantes/visitante_20260924_195411_b8e62d9c.jpg', 'Visitante', '2026-09-24 19:54:11');
+
+--
+-- Índices para tabelas despejadas
+--
+
+--
+-- Índices de tabela `autorizacao_acesso`
+--
+ALTER TABLE `autorizacao_acesso`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `qr_code` (`qr_code`),
+  ADD KEY `fk_autorizacao_visitante` (`visitante_id`),
+  ADD KEY `fk_autorizacao_unidade` (`unidade_id`),
+  ADD KEY `fk_autorizacao_usuario` (`usuario_autorizador_id`),
+  ADD KEY `idx_autorizacao_qr` (`qr_code`);
+
+--
+-- Índices de tabela `cobranca`
+--
+ALTER TABLE `cobranca`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_cobranca_unidade_status` (`unidade_id`,`status`);
+
+--
+-- Índices de tabela `documento`
+--
+ALTER TABLE `documento`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_documento_usuario` (`usuario_upload_id`);
+
+--
+-- Índices de tabela `encomenda`
+--
+ALTER TABLE `encomenda`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_encomenda_usuario` (`usuario_recebedor_id`),
+  ADD KEY `idx_encomenda_unidade_status` (`unidade_id`,`status`);
+
+--
+-- Índices de tabela `enquete_opcao`
+--
+ALTER TABLE `enquete_opcao`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_enquete_opcao_publicacao` (`publicacao_id`);
+
+--
+-- Índices de tabela `interacao`
+--
+ALTER TABLE `interacao`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_interacao_publicacao` (`publicacao_id`),
+  ADD KEY `fk_interacao_usuario` (`usuario_id`),
+  ADD KEY `idx_interacao_enquete_opcao` (`enquete_opcao_id`);
+
+--
+-- Índices de tabela `local_reserva`
+--
+ALTER TABLE `local_reserva`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_local_reserva_nome` (`nome`);
+
+--
+-- Índices de tabela `notificacao`
+--
+ALTER TABLE `notificacao`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_notificacao_usuario` (`usuario_id`),
+  ADD KEY `fk_notificacao_publicacao` (`publicacao_id`);
+
+--
+-- Índices de tabela `ocorrencia`
+--
+ALTER TABLE `ocorrencia`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_ocorrencia_usuario` (`usuario_id`);
+
+--
+-- Índices de tabela `publicacao`
+--
+ALTER TABLE `publicacao`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_publicacao_usuario` (`usuario_id`),
+  ADD KEY `idx_publicacao_categoria` (`categoria`);
+
+--
+-- Índices de tabela `registro_acesso`
+--
+ALTER TABLE `registro_acesso`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_registro_usuario` (`usuario_id`),
+  ADD KEY `fk_registro_visitante` (`visitante_id`),
+  ADD KEY `idx_registro_acesso_data` (`data_hora`),
+  ADD KEY `fk_registro_acesso_autorizador` (`autorizado_por_usuario_id`);
+
+--
+-- Índices de tabela `reserva`
+--
+ALTER TABLE `reserva`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_reserva_usuario` (`usuario_id`),
+  ADD KEY `idx_reserva_local_data` (`local_reserva_id`,`data_inicio`,`data_fim`);
+
+--
+-- Índices de tabela `unidade`
+--
+ALTER TABLE `unidade`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Índices de tabela `usuario`
+--
+ALTER TABLE `usuario`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `cpf` (`cpf`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `idx_usuario_unidade` (`unidade_id`),
+  ADD KEY `idx_usuario_cpf` (`cpf`);
+
+--
+-- Índices de tabela `veiculo`
+--
+ALTER TABLE `veiculo`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `placa` (`placa`),
+  ADD KEY `fk_veiculo_usuario` (`usuario_id`),
+  ADD KEY `idx_veiculo_placa` (`placa`);
+
+--
+-- Índices de tabela `visitante`
+--
+ALTER TABLE `visitante`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT para tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `autorizacao_acesso`
+--
+ALTER TABLE `autorizacao_acesso`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `cobranca`
+--
+ALTER TABLE `cobranca`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT de tabela `documento`
+--
+ALTER TABLE `documento`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de tabela `encomenda`
+--
+ALTER TABLE `encomenda`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de tabela `enquete_opcao`
+--
+ALTER TABLE `enquete_opcao`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT de tabela `interacao`
+--
+ALTER TABLE `interacao`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de tabela `local_reserva`
+--
+ALTER TABLE `local_reserva`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `notificacao`
+--
+ALTER TABLE `notificacao`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=207;
+
+--
+-- AUTO_INCREMENT de tabela `ocorrencia`
+--
+ALTER TABLE `ocorrencia`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT de tabela `publicacao`
+--
+ALTER TABLE `publicacao`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT de tabela `registro_acesso`
+--
+ALTER TABLE `registro_acesso`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `reserva`
+--
+ALTER TABLE `reserva`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `unidade`
+--
+ALTER TABLE `unidade`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT de tabela `usuario`
+--
+ALTER TABLE `usuario`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT de tabela `veiculo`
+--
+ALTER TABLE `veiculo`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de tabela `visitante`
+--
+ALTER TABLE `visitante`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- Restrições para tabelas despejadas
+--
+
+--
+-- Restrições para tabelas `autorizacao_acesso`
+--
+ALTER TABLE `autorizacao_acesso`
+  ADD CONSTRAINT `fk_autorizacao_unidade` FOREIGN KEY (`unidade_id`) REFERENCES `unidade` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_autorizacao_usuario` FOREIGN KEY (`usuario_autorizador_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_autorizacao_visitante` FOREIGN KEY (`visitante_id`) REFERENCES `visitante` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `cobranca`
+--
+ALTER TABLE `cobranca`
+  ADD CONSTRAINT `fk_cobranca_unidade` FOREIGN KEY (`unidade_id`) REFERENCES `unidade` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `documento`
+--
+ALTER TABLE `documento`
+  ADD CONSTRAINT `fk_documento_usuario` FOREIGN KEY (`usuario_upload_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL;
+
+--
+-- Restrições para tabelas `encomenda`
+--
+ALTER TABLE `encomenda`
+  ADD CONSTRAINT `fk_encomenda_unidade` FOREIGN KEY (`unidade_id`) REFERENCES `unidade` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_encomenda_usuario` FOREIGN KEY (`usuario_recebedor_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL;
+
+--
+-- Restrições para tabelas `enquete_opcao`
+--
+ALTER TABLE `enquete_opcao`
+  ADD CONSTRAINT `fk_enquete_opcao_publicacao` FOREIGN KEY (`publicacao_id`) REFERENCES `publicacao` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `interacao`
+--
+ALTER TABLE `interacao`
+  ADD CONSTRAINT `fk_interacao_enquete_opcao` FOREIGN KEY (`enquete_opcao_id`) REFERENCES `enquete_opcao` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_interacao_publicacao` FOREIGN KEY (`publicacao_id`) REFERENCES `publicacao` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_interacao_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `notificacao`
+--
+ALTER TABLE `notificacao`
+  ADD CONSTRAINT `fk_notificacao_publicacao` FOREIGN KEY (`publicacao_id`) REFERENCES `publicacao` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_notificacao_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `ocorrencia`
+--
+ALTER TABLE `ocorrencia`
+  ADD CONSTRAINT `fk_ocorrencia_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `publicacao`
+--
+ALTER TABLE `publicacao`
+  ADD CONSTRAINT `fk_publicacao_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `registro_acesso`
+--
+ALTER TABLE `registro_acesso`
+  ADD CONSTRAINT `fk_registro_acesso_autorizador` FOREIGN KEY (`autorizado_por_usuario_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_registro_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_registro_visitante` FOREIGN KEY (`visitante_id`) REFERENCES `visitante` (`id`) ON DELETE SET NULL;
+
+--
+-- Restrições para tabelas `reserva`
+--
+ALTER TABLE `reserva`
+  ADD CONSTRAINT `fk_reserva_local_reserva` FOREIGN KEY (`local_reserva_id`) REFERENCES `local_reserva` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reserva_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `usuario`
+--
+ALTER TABLE `usuario`
+  ADD CONSTRAINT `fk_usuario_unidade` FOREIGN KEY (`unidade_id`) REFERENCES `unidade` (`id`) ON DELETE SET NULL;
+
+--
+-- Restrições para tabelas `veiculo`
+--
+ALTER TABLE `veiculo`
+  ADD CONSTRAINT `fk_veiculo_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
