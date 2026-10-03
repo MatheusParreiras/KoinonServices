@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Controllers\Community\CommunityController;
 use App\Controllers\ConciergeController;
 use App\Controllers\FinanceController;
 use App\Controllers\OccurrenceController;
@@ -28,11 +29,17 @@ final class Navigation
             ['reservations', 'Reservas', '/reservations', ReservationController::VIEWERS],
             ['occurrences', 'Ocorrências', '/occurrences', OccurrenceController::VIEWERS],
             ['finance', 'Financeiro', '/finance', FinanceController::VIEWERS],
+            ['community', 'Comunidade', '/community', CommunityController::MEMBERS],
         ];
         foreach ($modules as [$key, $label, $href, $roles]) {
             if (Auth::hasRole($roles)) {
                 $items[] = ['key' => $key, 'label' => $label, 'href' => $href];
             }
+        }
+
+        // Super Admin is not a community member but may review the moderation queue.
+        if (!Auth::hasRole(CommunityController::MEMBERS) && Auth::hasRole(CommunityController::MODERATION_VIEWERS)) {
+            $items[] = ['key' => 'community', 'label' => 'Moderação', 'href' => '/community/moderation'];
         }
 
         return $items;

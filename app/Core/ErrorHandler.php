@@ -43,7 +43,7 @@ final class ErrorHandler
     private static function render(int $status, string $message, Request $request): Response
     {
         if ($request->wantsJson()) {
-            return Response::json(['error' => $message], $status);
+            return Response::json(['status' => 'error', 'message' => $message, 'error' => $message], $status);
         }
 
         try {

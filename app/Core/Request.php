@@ -25,7 +25,8 @@ final class Request
         private readonly string $path,
         private readonly array $query,
         private readonly array $body,
-        private readonly array $server
+        private readonly array $server,
+        private readonly bool $malformedJson = false
     ) {
     }
 
@@ -39,13 +40,16 @@ final class Request
         $path = '/' . trim(is_string($path) ? $path : '/', '/');
 
         $body = $_POST;
+        $malformed = false;
         if (str_contains((string) ($_SERVER['CONTENT_TYPE'] ?? ''), 'application/json')) {
             $raw = file_get_contents('php://input', false, null, 0, self::MAX_JSON_BYTES);
             $decoded = json_decode($raw === false ? '' : $raw, true);
             $body = is_array($decoded) ? $decoded : [];
+            // An empty body is fine (e.g. a like); a non-empty one that is not a JSON object is not.
+            $malformed = $raw !== false && trim($raw) !== '' && !is_array($decoded);
         }
 
-        return new self($method, $path, $_GET, $body, $_SERVER);
+        return new self($method, $path, $_GET, $body, $_SERVER, $malformed);
     }
 
     public function method(): string
@@ -56,6 +60,12 @@ final class Request
     public function path(): string
     {
         return $this->path;
+    }
+
+    /** True when a JSON body was sent but could not be decoded into an object (answer 400). */
+    public function hasMalformedJson(): bool
+    {
+        return $this->malformedJson;
     }
 
     /** Returns a query-string value. */

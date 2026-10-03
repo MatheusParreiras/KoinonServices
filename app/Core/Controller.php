@@ -60,7 +60,7 @@ abstract class Controller
             : 'Corrija os campos destacados e tente novamente.';
 
         if ($this->request->wantsJson()) {
-            return $this->json(['error' => $summary, 'errors' => $errors], $status);
+            return $this->failure($summary, $status, $errors);
         }
 
         $old = [];
@@ -93,6 +93,32 @@ abstract class Controller
     protected function json(mixed $data, int $status = 200): Response
     {
         return Response::json($data, $status);
+    }
+
+    /**
+     * Standard JSON success envelope: {"status": "success", "data": {...}}.
+     *
+     * @param array<string, mixed> $data
+     */
+    protected function success(array $data, int $status = 200): Response
+    {
+        return Response::json(['status' => 'success', 'data' => $data], $status);
+    }
+
+    /**
+     * Standard JSON error envelope: {"status": "error", "message": "...", "errors": {...}}.
+     * "error" repeats the message for clients written against the Phase 2/3 shape.
+     *
+     * @param array<string, string> $errors field => message (validation errors only)
+     */
+    protected function failure(string $message, int $status, array $errors = []): Response
+    {
+        $body = ['status' => 'error', 'message' => $message, 'error' => $message];
+        if ($errors !== []) {
+            $body['errors'] = $errors;
+        }
+
+        return Response::json($body, $status);
     }
 
     /** Redirect to a path inside the application. */

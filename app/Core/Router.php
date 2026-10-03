@@ -58,6 +58,15 @@ final class Router
     }
 
     /**
+     * @param array{0: class-string, 1: string} $handler
+     * @param list<string> $middleware
+     */
+    public function delete(string $path, array $handler, array $middleware = []): void
+    {
+        $this->add('DELETE', $path, $handler, $middleware);
+    }
+
+    /**
      * Finds the matching route and runs it through its middleware.
      *
      * @throws HttpException 404 when no path matches, 405 when the path exists for another method.

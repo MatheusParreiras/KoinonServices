@@ -14,6 +14,12 @@
 declare(strict_types=1);
 
 use App\Controllers\AuthController;
+use App\Controllers\Community\CommentController;
+use App\Controllers\Community\CommunityController;
+use App\Controllers\Community\LikeController;
+use App\Controllers\Community\ModerationController;
+use App\Controllers\Community\PostController;
+use App\Controllers\Community\ReportController;
 use App\Controllers\ConciergeController;
 use App\Controllers\DashboardController;
 use App\Controllers\FinanceController;
@@ -132,6 +138,47 @@ $router->get('/finance', [FinanceController::class, 'index'], [
 ]);
 $router->post('/finance/charges', [FinanceController::class, 'storeCharge'], [
     'auth', 'tenant', $viewers(FinanceController::MANAGERS), 'csrf',
+]);
+
+// =============================================================================
+// Phase 4 - Community (social network)
+//
+// Same chain as Phase 3: auth → tenant → role → csrf. All /api/community/*
+// endpoints answer JSON ({"status": "success"|"error", ...}); errors raised by
+// middleware (401/403/419) use the same envelope via ErrorHandler.
+// {id} is only a lookup key: services re-check that the post is in the session's tenant.
+// =============================================================================
+
+$members = $viewers(CommunityController::MEMBERS);
+$moderators = $viewers(CommunityController::MODERATORS);
+
+// Pages
+$router->get('/community', [PostController::class, 'index'], ['auth', 'tenant', $members]);
+$router->get('/community/moderation', [ModerationController::class, 'index'], [
+    'auth', 'tenant', $viewers(CommunityController::MODERATION_VIEWERS),
+]);
+
+// Feed and posts
+$router->get('/api/community/posts', [PostController::class, 'feed'], ['auth', 'tenant', $members]);
+$router->post('/api/community/posts', [PostController::class, 'store'], ['auth', 'tenant', $members, 'csrf']);
+
+// Likes (idempotent set / unset)
+$router->post('/api/community/posts/{id:\d+}/like', [LikeController::class, 'store'], ['auth', 'tenant', $members, 'csrf']);
+$router->delete('/api/community/posts/{id:\d+}/like', [LikeController::class, 'destroy'], ['auth', 'tenant', $members, 'csrf']);
+
+// Comments
+$router->get('/api/community/posts/{id:\d+}/comments', [CommentController::class, 'index'], ['auth', 'tenant', $members]);
+$router->post('/api/community/posts/{id:\d+}/comments', [CommentController::class, 'store'], ['auth', 'tenant', $members, 'csrf']);
+
+// Reports
+$router->post('/api/community/posts/{id:\d+}/reports', [ReportController::class, 'store'], ['auth', 'tenant', $members, 'csrf']);
+
+// Moderation (managers only)
+$router->delete('/api/community/moderation/posts/{id:\d+}', [ModerationController::class, 'destroy'], [
+    'auth', 'tenant', $moderators, 'csrf',
+]);
+$router->post('/api/community/moderation/posts/{id:\d+}/dismiss', [ModerationController::class, 'dismiss'], [
+    'auth', 'tenant', $moderators, 'csrf',
 ]);
 
 return $router;

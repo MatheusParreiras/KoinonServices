@@ -13,7 +13,7 @@ const TIMEOUT_MS = 15000;
 export class HttpError extends Error {
     /**
      * @param {number} status HTTP status, or 0 for network failure / timeout.
-     * @param {any} payload Decoded JSON body ({error, errors}), or null.
+     * @param {any} payload Decoded JSON body ({status, message, errors} or the older {error, errors}), or null.
      */
     constructor(status, payload) {
         super(`HTTP ${status}`);
@@ -74,3 +74,4 @@ async function request(method, url, body) {
 
 export const getJson = (url) => request('GET', url);
 export const postJson = (url, body) => request('POST', url, body);
+export const deleteJson = (url) => request('DELETE', url);
