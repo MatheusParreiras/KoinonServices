@@ -1,28 +1,8 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Tempo de geração: 25/09/2026 às 22:06
--- Versão do servidor: 10.4.32-MariaDB
--- Versão do PHP: 8.2.12
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
 --
 -- Banco de dados: `koinon_service`
---
-
--- --------------------------------------------------------
-
 --
 -- Estrutura para tabela `autorizacao_acesso`
 --
@@ -44,7 +24,8 @@ CREATE TABLE `autorizacao_acesso` (
 --
 
 INSERT INTO `autorizacao_acesso` (`id`, `visitante_id`, `unidade_id`, `usuario_autorizador_id`, `data_inicio`, `data_fim`, `qr_code`, `status`, `created_at`) VALUES
-(26, 16, 3, NULL, '2026-09-24 19:54:00', '2026-09-24 20:54:00', 'KOINON-BC09FE6DBA44FB90', 'Utilizado', '2026-09-24 19:54:24');
+(26, 16, 3, NULL, '2026-09-24 19:54:00', '2026-09-24 20:54:00', 'KOINON-BC09FE6DBA44FB90', 'Utilizado', '2026-09-24 19:54:24'),
+(28, 16, 5, 22, '2026-09-25 21:01:00', '2026-09-25 22:01:00', 'KOINON-E01B15E27A7A8E43', 'Expirado', '2026-09-25 21:01:14');
 
 -- --------------------------------------------------------
 
@@ -74,7 +55,37 @@ CREATE TABLE `cobranca` (
 INSERT INTO `cobranca` (`id`, `unidade_id`, `tipo_cobranca`, `mes_referencia`, `descricao`, `valor`, `vencimento`, `linha_digitavel`, `link_boleto`, `status`, `data_pagamento`, `created_at`) VALUES
 (14, 3, 'Multa', '2026-09', 'Reserva #19 - Churrasqueira', 50.00, '2026-09-25', NULL, NULL, 'Pago', '2026-09-24 11:07:47', '2026-09-24 11:06:49'),
 (16, 4, 'Taxa_Condominial', '2026-09', 'fgh', 150.00, '2026-09-26', '56345634563457354634563456345634', 'http://localhost/koinon-service-v3/view/esqueci_senha.php', 'Pago', '2026-09-25 10:17:28', '2026-09-25 00:47:11'),
-(17, 4, 'Reserva', '2026-09', 'Reserva #21 - Churrasqueira', 50.00, '2026-09-25', NULL, NULL, 'Cancelado', NULL, '2026-09-25 08:53:43');
+(17, 4, 'Reserva', '2026-09', 'Reserva #21 - Churrasqueira', 50.00, '2026-09-25', NULL, NULL, 'Cancelado', NULL, '2026-09-25 08:53:43'),
+(18, 5, 'Reserva', '2026-09', 'Reserva #23 - Salão de Festa', 150.00, '2026-09-30', NULL, NULL, 'Pago', '2026-09-29 09:53:42', '2026-09-29 09:52:10');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `comprovante`
+--
+
+CREATE TABLE `comprovante` (
+  `id` bigint(20) NOT NULL,
+  `numero_comprovante` varchar(40) NOT NULL,
+  `tipo` varchar(40) NOT NULL,
+  `encomenda_id` bigint(20) DEFAULT NULL,
+  `cobranca_id` bigint(20) DEFAULT NULL,
+  `unidade_id` bigint(20) DEFAULT NULL,
+  `usuario_id` bigint(20) DEFAULT NULL,
+  `data_emissao` datetime NOT NULL DEFAULT current_timestamp(),
+  `dados_json` longtext NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `comprovante`
+--
+
+INSERT INTO `comprovante` (`id`, `numero_comprovante`, `tipo`, `encomenda_id`, `cobranca_id`, `unidade_id`, `usuario_id`, `data_emissao`, `dados_json`, `created_at`) VALUES
+(10, 'KNS-20260929134132-58342F', 'Retirada_Encomenda', 9, NULL, 3, NULL, '2026-09-25 16:54:42', '{\"encomenda_id\":9,\"unidade_id\":3,\"usuario_id\":null,\"usuario_nome\":null,\"unidade_identificacao\":\"Bloco 1 - 102\",\"descricao\":\"rfter\",\"codigo_rastreio\":\"75675467456\",\"data_recebimento\":\"2026-09-24 12:53:17\",\"data_retirada\":\"2026-09-25 16:54:42\",\"data_emissao\":\"2026-09-25 16:54:42\"}', '2026-09-29 13:41:32'),
+(11, 'KNS-20260929134132-4E2BB3', 'Pagamento_Cobranca', NULL, 14, 3, NULL, '2026-09-24 11:07:47', '{\"cobranca_id\":14,\"unidade_id\":3,\"usuario_id\":null,\"usuario_nome\":null,\"unidade_identificacao\":\"Bloco 1 - 102\",\"descricao\":\"Reserva #19 - Churrasqueira\",\"valor\":\"50.00\",\"vencimento\":\"2026-09-25\",\"data_pagamento\":\"2026-09-24 11:07:47\",\"mes_referencia\":\"2026-09\",\"tipo_cobranca\":\"Multa\",\"data_emissao\":\"2026-09-24 11:07:47\"}', '2026-09-29 13:41:32'),
+(12, 'KNS-20260929134132-4D2F09', 'Pagamento_Cobranca', NULL, 16, 4, NULL, '2026-09-25 10:17:28', '{\"cobranca_id\":16,\"unidade_id\":4,\"usuario_id\":null,\"usuario_nome\":null,\"unidade_identificacao\":\"Bloco A - 106\",\"descricao\":\"fgh\",\"valor\":\"150.00\",\"vencimento\":\"2026-09-26\",\"data_pagamento\":\"2026-09-25 10:17:28\",\"mes_referencia\":\"2026-09\",\"tipo_cobranca\":\"Taxa_Condominial\",\"data_emissao\":\"2026-09-25 10:17:28\"}', '2026-09-29 13:41:32'),
+(13, 'KNS-20260929134132-B24C73', 'Pagamento_Cobranca', NULL, 18, 5, 22, '2026-09-29 09:53:42', '{\"cobranca_id\":18,\"unidade_id\":5,\"usuario_id\":22,\"usuario_nome\":\"Joao Morador\",\"unidade_identificacao\":\"Bloco A - 107\",\"descricao\":\"Reserva #23 - Salão de Festa\",\"valor\":\"150.00\",\"vencimento\":\"2026-09-30\",\"data_pagamento\":\"2026-09-29 09:53:42\",\"mes_referencia\":\"2026-09\",\"tipo_cobranca\":\"Reserva\",\"data_emissao\":\"2026-09-29 09:53:42\"}', '2026-09-29 13:41:32');
 
 -- --------------------------------------------------------
 
@@ -91,13 +102,6 @@ CREATE TABLE `documento` (
   `arquivo_url` text NOT NULL,
   `data_upload` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Atas, convenções e relatórios em PDF.';
-
---
--- Despejando dados para a tabela `documento`
---
-
-INSERT INTO `documento` (`id`, `usuario_upload_id`, `titulo`, `categoria`, `descricao`, `arquivo_url`, `data_upload`) VALUES
-(4, NULL, 'asdf', 'Outros', 'asdfasdf', '../../assets/documentos/documento_20260924_125647_6ab5483fa6c33.pdf', '2026-09-24 12:56:47');
 
 -- --------------------------------------------------------
 
@@ -193,10 +197,10 @@ CREATE TABLE `local_reserva` (
 --
 
 INSERT INTO `local_reserva` (`id`, `nome`, `descricao`, `capacidade`, `valor`, `gratuito`, `duracao_minutos_minima`, `duracao_minutos_maxima`, `horario_inicio`, `horario_fim`, `antecedencia_min_dias`, `antecedencia_max_dias`, `limite_reservas_unidade`, `periodo_limite`, `domingo`, `segunda`, `terca`, `quarta`, `quinta`, `sexta`, `sabado`, `ativo`, `created_at`, `updated_at`, `fotos`) VALUES
-(1, 'TESTE2', 'salao de fe', 1, 150.00, 0, 60, 1440, '08:00:00', '23:00:00', 10, 30, 1, 'Mes', 0, 1, 1, 1, 1, 1, 1, 0, '2026-09-22 19:01:58', '2026-09-25 11:52:53', NULL),
-(2, 'QUADRA', 'SDFGSDF', 10, 0.00, 1, 60, 1440, '08:00:00', '23:00:00', 1, 1, 1, 'Dia', 1, 1, 1, 1, 1, 1, 1, 1, '2026-09-22 22:48:13', '2026-09-24 13:06:14', NULL),
-(3, 'Salão de Festa', '', 500, 150.00, 0, 120, 360, '08:00:00', '23:00:00', 0, 30, 1, 'Dia', 1, 1, 1, 1, 1, 1, 1, 0, '2026-09-23 11:38:12', '2026-09-25 11:52:55', NULL),
-(4, 'Churrasqueira', '', 20, 50.00, 0, 240, 360, '08:00:00', '23:00:00', 0, 30, 2, 'Dia', 1, 1, 1, 1, 1, 1, 1, 1, '2026-09-23 15:05:39', '2026-09-25 08:51:09', '[\"uploads/locais/4/8564487feec99fd0.jpg\",\"uploads/locais/4/e34de253314999b8.jpg\",\"uploads/locais/4/2edce94680f8ed71.jpg\",\"uploads/locais/4/bc8f2d5a6bcdd335.jpg\",\"uploads/locais/4/be8008fd8bda29d6.jpg\",\"uploads/locais/4/fd2b68a97edcf5df.jpg\",\"uploads/locais/4/8cf27916d009ce75.jpg\",\"uploads/locais/4/0c2aa68695a12924.jpg\"]');
+(1, 'Academia', '', 2, 0.00, 1, 60, 120, '08:00:00', '23:00:00', 1, 31, 4, 'Dia', 1, 0, 1, 1, 1, 1, 1, 1, '2026-09-22 19:01:58', '2026-09-25 20:59:19', '[\"uploads/locais/1/1f26938fd7ef7395.jpg\",\"uploads/locais/1/17e7c20a6bbd69b0.jpg\"]'),
+(2, 'Quadra Esportiva', '', 10, 0.00, 1, 60, 240, '08:00:00', '23:00:00', 0, 2, 1, 'Dia', 1, 1, 1, 1, 1, 1, 1, 1, '2026-09-22 22:48:13', '2026-09-25 20:56:40', NULL),
+(3, 'Salão de Festa', '', 500, 150.00, 0, 120, 360, '08:00:00', '23:00:00', 0, 30, 1, 'Dia', 1, 1, 1, 1, 1, 1, 1, 1, '2026-09-23 11:38:12', '2026-09-25 20:56:46', NULL),
+(4, 'Churrasqueira', '', 20, 50.00, 0, 240, 360, '08:00:00', '23:00:00', 0, 30, 2, 'Dia', 1, 1, 1, 1, 1, 1, 1, 1, '2026-09-23 15:05:39', '2026-10-01 13:48:26', '[]');
 
 -- --------------------------------------------------------
 
@@ -251,7 +255,30 @@ INSERT INTO `notificacao` (`id`, `usuario_id`, `publicacao_id`, `tipo`, `titulo`
 (187, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=21', 1, '2026-09-25 08:53:43'),
 (191, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Churrasqueira. Status: Pendente.', 'nova_reserva.php?id=21', 1, '2026-09-25 09:20:26'),
 (195, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Churrasqueira teve seu status alterado para: Cancelada.', 'nova_reserva.php?id=21', 1, '2026-09-25 09:20:38'),
-(199, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Churrasqueira. Status: Pendente.', 'nova_reserva.php?id=21', 1, '2026-09-25 09:20:43');
+(199, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Churrasqueira. Status: Pendente.', 'nova_reserva.php?id=21', 1, '2026-09-25 09:20:43'),
+(207, 22, NULL, 'Reserva', '📅 Atualização da reserva', 'Sua reserva do espaço Academia está com status: Pendente.', 'nova_reserva.php?id=22', 1, '2026-09-25 20:59:55'),
+(208, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Academia. Status: Pendente.', 'nova_reserva.php?id=22', 1, '2026-09-25 20:59:55'),
+(209, 24, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Academia. Status: Pendente.', 'nova_reserva.php?id=22', 1, '2026-09-25 20:59:55'),
+(210, 22, NULL, 'Reserva', '📅 Atualização da reserva', 'Sua reserva do espaço Academia está com status: Confirmada.', 'nova_reserva.php?id=22', 1, '2026-09-25 21:00:02'),
+(211, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Academia teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=22', 1, '2026-09-25 21:00:02'),
+(212, 24, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Academia teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=22', 1, '2026-09-25 21:00:02'),
+(213, 22, NULL, 'Autorizacao', '🚗 Atualização de autorização', 'A autorização para Visitante está com status: Ativo.', 'autorizacoes.php', 1, '2026-09-25 21:01:14'),
+(214, 12, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-25 21:01:14'),
+(215, 24, NULL, 'Autorizacao', '🚗 Nova autorização de acesso', 'Uma nova autorização de acesso foi cadastrada. Visitante: Visitante. Status: Ativo.', 'autorizacoes.php', 1, '2026-09-25 21:01:14'),
+(216, 23, NULL, 'Autorizacao', '🚪 Nova autorização de visitante', 'Uma nova autorização de acesso foi cadastrada para atendimento na portaria. Status: Ativo.', 'autorizacao_acesso/index.php', 1, '2026-09-25 21:01:14'),
+(217, 22, NULL, 'Reserva', '📅 Atualização da reserva', 'Sua reserva do espaço Salão de Festa está com status: Pendente.', 'nova_reserva.php?id=23', 1, '2026-09-29 09:52:06'),
+(218, 12, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Salão de Festa. Status: Pendente.', 'nova_reserva.php?id=23', 1, '2026-09-29 09:52:06'),
+(219, 24, NULL, 'Reserva', '📅 Nova reserva cadastrada', 'Uma nova reserva foi cadastrada para o espaço Salão de Festa. Status: Pendente.', 'nova_reserva.php?id=23', 1, '2026-09-29 09:52:06'),
+(220, 22, NULL, 'Reserva', '📅 Atualização da reserva', 'Sua reserva do espaço Salão de Festa está com status: Confirmada.', 'nova_reserva.php?id=23', 1, '2026-09-29 09:52:10'),
+(221, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Salão de Festa teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=23', 1, '2026-09-29 09:52:10'),
+(222, 24, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Salão de Festa teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=23', 1, '2026-09-29 09:52:10'),
+(223, 22, NULL, 'Cobranca', '💰 Cobrança paga', 'A cobrança Reserva #23 - Salão de Festa foi registrada como paga.', 'index.php', 1, '2026-09-29 09:53:42'),
+(224, 22, NULL, 'Reserva', '📅 Atualização da reserva', 'Sua reserva do espaço Academia está com status: Pendente.', 'nova_reserva.php', 1, '2026-09-29 14:48:42'),
+(225, 12, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Academia. Status: Pendente.', 'view/reserva/index.php', 1, '2026-09-29 14:48:42'),
+(226, 24, NULL, 'Reserva', '📅 Nova reserva solicitada', 'Uma nova reserva foi solicitada para o espaço Academia. Status: Pendente.', 'view/reserva/index.php', 0, '2026-09-29 14:48:42'),
+(227, 22, NULL, 'Reserva', '📅 Atualização da reserva', 'Sua reserva do espaço Academia está com status: Confirmada.', 'nova_reserva.php?id=24', 0, '2026-10-01 13:47:47'),
+(228, 12, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Academia teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=24', 0, '2026-10-01 13:47:47'),
+(229, 24, NULL, 'Reserva', '📅 Reserva atualizada', 'A reserva do espaço Academia teve seu status alterado para: Confirmada.', 'nova_reserva.php?id=24', 0, '2026-10-01 13:47:47');
 
 -- --------------------------------------------------------
 
@@ -342,6 +369,14 @@ CREATE TABLE `reserva` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ;
 
+--
+-- Despejando dados para a tabela `reserva`
+--
+
+INSERT INTO `reserva` (`id`, `usuario_id`, `local_reserva_id`, `espaco_nome`, `quantidade_pessoas`, `data_inicio`, `data_fim`, `status`, `valor_taxa`, `created_at`) VALUES
+(23, 22, 3, 'Salão de Festa', 1, '2026-09-30 10:00:00', '2026-09-30 12:00:00', 'Concluida', 150.00, '2026-09-29 09:52:06'),
+(24, 22, 1, 'Academia', 1, '2026-09-30 10:00:00', '2026-09-30 11:00:00', 'Concluida', 0.00, '2026-09-29 14:48:42');
+
 -- --------------------------------------------------------
 
 --
@@ -395,11 +430,11 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id`, `unidade_id`, `nome`, `cpf`, `email`, `telefone`, `senha_hash`, `senha_definida`, `primeiro_acesso`, `perfil`, `biometria_hash`, `termo_lgpd`, `data_aceite_lgpd`, `ativo`, `created_at`) VALUES
-(12, NULL, 'TESTE ADM', '151561256', 'TESTEADM@GMAIL.COM', NULL, '$2y$10$P3PQ1WdNRxjxlYe3TNAnnOo3Z66gzE0Zr2WIM1s5lcbXfQUFDId/C', 1, 0, 'Administrador', NULL, 1, '2026-09-21 02:25:31', 1, '2026-09-20 21:25:31'),
-(21, NULL, 'Administrador', '01234567890', 'admin@koinon.com', NULL, '$2y$10$HOHPWVwHjnzYEniwFpYNDeDfRsbnS8HqfqfGb4awP4zyRAtp8EoAm', 0, 1, 'Administrador', NULL, 0, NULL, 1, '2026-09-25 11:31:12'),
+(12, NULL, 'Joao Administrador', '151561256', 'TESTEADM@GMAIL.COM', NULL, '$2y$10$P3PQ1WdNRxjxlYe3TNAnnOo3Z66gzE0Zr2WIM1s5lcbXfQUFDId/C', 1, 0, 'Administrador', NULL, 1, '2026-09-21 02:25:31', 1, '2026-09-20 21:25:31'),
 (22, 5, 'Joao Morador', '78945612300', 'testemorador@gmail.com', '61999999999', '$2y$10$uTRXCpklQlGLZgicPf4i.e/QzsTnnqA5EC0X/6TLU9H7AptX6ppMe', 1, 0, 'Morador', NULL, 1, '2026-09-25 11:39:46', 1, '2026-09-25 11:35:12'),
 (23, NULL, 'Joao Porteiro', '78945612301', 'TESTEPORTEIRO@GMAIL.COM', '61999999999', '$2y$10$CQJVwEiYkCW2KxhCbycDvuf/A66Mrh4nNDX/K60NyYry7MuRDwbeK', 1, 0, 'Porteiro', NULL, 1, '2026-09-25 11:44:24', 1, '2026-09-25 11:37:03'),
-(24, NULL, 'Joao Sindico', '78945612303', 'TESTESINDICO@GMAIL.COM', '61999999999', '$2y$10$r/JYWVHCqmlk4icnnvi4R.dvrHeY2xgtv/l278eNvEQDukZtGiBHy', 1, 0, 'Sindico', NULL, 1, '2026-09-25 11:52:10', 1, '2026-09-25 11:38:00');
+(24, NULL, 'Joao Sindico', '78945612303', 'TESTESINDICO@GMAIL.COM', '61999999999', '$2y$10$r/JYWVHCqmlk4icnnvi4R.dvrHeY2xgtv/l278eNvEQDukZtGiBHy', 1, 0, 'Sindico', NULL, 1, '2026-09-25 11:52:10', 1, '2026-09-25 11:38:00'),
+(25, NULL, 'Administrador', '01234567890', 'admin@koinon.com', NULL, '$2y$10$A12T.T.9VGjT20D.TvyEVODZKPDHQ5mRvdVTJyr6Izte1cArolcGa', 0, 1, 'Administrador', NULL, 0, NULL, 0, '2026-09-25 20:49:34');
 
 -- --------------------------------------------------------
 
@@ -416,6 +451,13 @@ CREATE TABLE `veiculo` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `status_aprovacao` varchar(20) NOT NULL DEFAULT 'Pendente' CHECK (`status_aprovacao` in ('Pendente','Aprovado','Rejeitado'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Cadastro de veículos para automação LPR.';
+
+--
+-- Despejando dados para a tabela `veiculo`
+--
+
+INSERT INTO `veiculo` (`id`, `usuario_id`, `placa`, `modelo`, `cor`, `created_at`, `status_aprovacao`) VALUES
+(10, 22, 'ABC3256', 'Onix', 'Preto', '2026-09-25 20:51:07', 'Aprovado');
 
 -- --------------------------------------------------------
 
@@ -460,6 +502,17 @@ ALTER TABLE `autorizacao_acesso`
 ALTER TABLE `cobranca`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_cobranca_unidade_status` (`unidade_id`,`status`);
+
+--
+-- Índices de tabela `comprovante`
+--
+ALTER TABLE `comprovante`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_comprovante_numero` (`numero_comprovante`),
+  ADD UNIQUE KEY `uq_comprovante_encomenda` (`encomenda_id`),
+  ADD UNIQUE KEY `uq_comprovante_cobranca` (`cobranca_id`),
+  ADD KEY `idx_comprovante_unidade` (`unidade_id`),
+  ADD KEY `idx_comprovante_usuario` (`usuario_id`);
 
 --
 -- Índices de tabela `documento`
@@ -585,7 +638,13 @@ ALTER TABLE `autorizacao_acesso`
 -- AUTO_INCREMENT de tabela `cobranca`
 --
 ALTER TABLE `cobranca`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+
+--
+-- AUTO_INCREMENT de tabela `comprovante`
+--
+ALTER TABLE `comprovante`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de tabela `documento`
@@ -621,7 +680,7 @@ ALTER TABLE `local_reserva`
 -- AUTO_INCREMENT de tabela `notificacao`
 --
 ALTER TABLE `notificacao`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=207;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=230;
 
 --
 -- AUTO_INCREMENT de tabela `ocorrencia`
@@ -633,7 +692,7 @@ ALTER TABLE `ocorrencia`
 -- AUTO_INCREMENT de tabela `publicacao`
 --
 ALTER TABLE `publicacao`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT de tabela `registro_acesso`
@@ -657,13 +716,13 @@ ALTER TABLE `unidade`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de tabela `veiculo`
 --
 ALTER TABLE `veiculo`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de tabela `visitante`
@@ -688,6 +747,15 @@ ALTER TABLE `autorizacao_acesso`
 --
 ALTER TABLE `cobranca`
   ADD CONSTRAINT `fk_cobranca_unidade` FOREIGN KEY (`unidade_id`) REFERENCES `unidade` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `comprovante`
+--
+ALTER TABLE `comprovante`
+  ADD CONSTRAINT `fk_comprovante_cobranca` FOREIGN KEY (`cobranca_id`) REFERENCES `cobranca` (`id`),
+  ADD CONSTRAINT `fk_comprovante_encomenda` FOREIGN KEY (`encomenda_id`) REFERENCES `encomenda` (`id`),
+  ADD CONSTRAINT `fk_comprovante_unidade` FOREIGN KEY (`unidade_id`) REFERENCES `unidade` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_comprovante_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL;
 
 --
 -- Restrições para tabelas `documento`
