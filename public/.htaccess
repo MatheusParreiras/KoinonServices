@@ -1,0 +1,9 @@
+# Only public/ is the document root. Everything that is not a real file
+# (CSS, JS, images) is routed to the front controller.
+Options -Indexes -MultiViews
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
