@@ -599,3 +599,351 @@ body.auth {
     font-size: 13px;
     color: var(--color-muted);
 }
+
+/* =====================================================================
+ * Phase 3 - management modules
+ * ===================================================================== */
+
+/* ---------- Layout ---------- */
+
+.columns {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.columns__side,
+.columns__main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+/* Pages without a side form (read-only roles) use the full width. */
+.columns > .columns__main:only-child {
+    grid-column: 1 / -1;
+}
+
+.panel--padded {
+    padding: 24px;
+}
+
+.panel--narrow {
+    max-width: 760px;
+}
+
+.panel__title {
+    font-size: 16px;
+    margin-bottom: 16px;
+}
+
+.panel__title--bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.page-header__eyebrow {
+    margin: 0 0 6px;
+    font-size: 13px;
+}
+
+.counter {
+    min-width: 24px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-size: 13px;
+    text-align: center;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.tabs__item {
+    padding: 8px 14px;
+    color: var(--color-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.tabs__item.is-active {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* ---------- Tables ---------- */
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.table th,
+.table td {
+    padding: 12px 16px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    background: #fafbfc;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table tbody tr:hover {
+    background: #fafbfc;
+}
+
+.table--compact th,
+.table--compact td {
+    padding: 8px 16px;
+}
+
+.table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.table__action {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.row--overdue td {
+    background: var(--color-danger-soft);
+}
+
+.row--overdue td:first-child {
+    box-shadow: inset 3px 0 0 var(--color-danger);
+}
+
+.row--done td {
+    color: var(--color-muted);
+}
+
+.done-label {
+    color: var(--color-success);
+    font-weight: 600;
+    white-space: normal;
+}
+
+/* ---------- Status pills ---------- */
+
+.pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--color-bg);
+    color: var(--color-muted);
+}
+
+.pill--large {
+    font-size: 14px;
+    padding: 4px 14px;
+}
+
+.pill--pending,
+.pill--in_progress {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+
+.pill--approved,
+.pill--resolved,
+.pill--paid {
+    background: var(--color-success-soft);
+    color: var(--color-success);
+}
+
+.pill--open {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+.pill--overdue,
+.pill--rejected {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+}
+
+.tag--warning {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+
+/* ---------- Forms (additions) ---------- */
+
+.form__hint {
+    font-size: 12px;
+    color: var(--color-muted);
+}
+
+.form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.form__actions--split {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.form--separated {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
+}
+
+[aria-invalid="true"] {
+    border-color: var(--color-danger) !important;
+    background: var(--color-danger-soft);
+}
+
+input[type="date"],
+input[type="time"],
+input[type="month"],
+input[type="number"] {
+    width: 100%;
+    padding: 9px 12px;
+    font: inherit;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+}
+
+.inline-form {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.inline-form input[type="text"] {
+    width: 130px;
+    padding: 6px 8px;
+}
+
+.btn--small {
+    padding: 5px 10px;
+    font-size: 13px;
+}
+
+.btn--danger-ghost {
+    color: var(--color-danger);
+    border-color: transparent;
+    background: transparent;
+}
+
+.btn--danger-ghost:hover {
+    background: var(--color-danger-soft);
+}
+
+/* Async-form feedback text (async-form.js sets data-kind). */
+.feedback {
+    flex-basis: 100%;
+    font-size: 12px;
+    text-align: right;
+}
+
+.feedback:empty {
+    display: none;
+}
+
+.feedback[data-kind="error"] {
+    color: var(--color-danger);
+}
+
+.feedback[data-kind="success"] {
+    color: var(--color-success);
+}
+
+.feedback[data-kind="info"] {
+    color: var(--color-muted);
+}
+
+/* ---------- Occurrence timeline ---------- */
+
+.timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.timeline__item {
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+}
+
+.timeline__item--internal {
+    background: var(--color-warning-soft);
+    border-color: #fedf89;
+}
+
+.timeline__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.timeline__status {
+    margin: 0 0 6px;
+    font-size: 13px;
+}
+
+/* ---------- Utilities ---------- */
+
+.prewrap {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    margin: 0 0 8px;
+}
+
+.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.small {
+    font-size: 12px;
+}
+
+/* End of Phase 3 styles */

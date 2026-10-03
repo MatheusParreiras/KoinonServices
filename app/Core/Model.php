@@ -168,6 +168,27 @@ abstract class Model
         return $filtered;
     }
 
+    /**
+     * Builds an IN (...) list of bound placeholders for integer ids:
+     *   [$sql, $params] = $this->inList('unit', [3, 7]);  // ":unit0, :unit1", ['unit0' => 3, 'unit1' => 7]
+     * Only placeholder names are generated; the values stay bound parameters.
+     * Callers must handle an empty list themselves (IN () is invalid SQL).
+     *
+     * @param list<int> $ids
+     * @return array{0: string, 1: array<string, int>}
+     */
+    protected function inList(string $prefix, array $ids): array
+    {
+        $placeholders = [];
+        $params = [];
+        foreach (array_values($ids) as $i => $id) {
+            $placeholders[] = ':' . $prefix . $i;
+            $params[$prefix . $i] = (int) $id;
+        }
+
+        return [implode(', ', $placeholders), $params];
+    }
+
     /** @param array<string, mixed> $where */
     private function conditions(array $where, string $prefix): string
     {

@@ -17,7 +17,7 @@ final class Condominium extends Model
     public function findActive(int $id): ?array
     {
         return $this->fetchOne(
-            "SELECT id, name FROM condominiums WHERE id = :id AND status = 'active'",
+            "SELECT id, name, timezone FROM condominiums WHERE id = :id AND status = 'active'",
             ['id' => $id]
         );
     }

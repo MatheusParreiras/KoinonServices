@@ -11,15 +11,8 @@
  * @var bool                  $isSuperAdmin
  * @var string|null           $tenantName
  * @var array<string, string> $flashes
+ * @var list<array{key: string, label: string, href: string}> $navigation Entries allowed for the current role.
  */
-
-$navigation = [
-    ['key' => 'notices', 'label' => 'Mural de avisos', 'href' => '/dashboard'],
-    ['key' => 'concierge', 'label' => 'Portaria', 'href' => null],
-    ['key' => 'reservations', 'label' => 'Reservas', 'href' => null],
-    ['key' => 'occurrences', 'label' => 'Ocorrências', 'href' => null],
-    ['key' => 'financial', 'label' => 'Financeiro', 'href' => null],
-];
 ?>
 <!doctype html>
 <html lang="pt-BR">
@@ -61,13 +54,9 @@ $navigation = [
         <ul class="sidebar__list">
             <?php foreach ($navigation as $item): ?>
                 <li>
-                    <?php if ($item['href'] !== null): ?>
-                        <a class="sidebar__link<?= $activeNav === $item['key'] ? ' is-active' : '' ?>"
-                           href="<?= e($item['href']) ?>"
-                           <?= $activeNav === $item['key'] ? 'aria-current="page"' : '' ?>><?= e($item['label']) ?></a>
-                    <?php else: ?>
-                        <span class="sidebar__link is-disabled" title="Disponível em breve"><?= e($item['label']) ?></span>
-                    <?php endif; ?>
+                    <a class="sidebar__link<?= $activeNav === $item['key'] ? ' is-active' : '' ?>"
+                       href="<?= e($item['href']) ?>"
+                       <?= $activeNav === $item['key'] ? 'aria-current="page"' : '' ?>><?= e($item['label']) ?></a>
                 </li>
             <?php endforeach; ?>
         </ul>

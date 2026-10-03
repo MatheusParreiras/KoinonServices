@@ -32,10 +32,61 @@ abstract class Controller
             'currentRole'     => Auth::roleLabel(),
             'isSuperAdmin'    => Auth::isSuperAdmin(),
             'tenantName'      => TenantContext::name(),
+            'navigation'      => $user === null ? [] : Navigation::items(),
             'flashes'         => Session::pullFlashes(['success', 'warning', 'error']),
+            // Field errors and previous input after a failed form POST (see invalid()).
+            'errors'          => Session::pullFlashData('errors'),
+            'old'             => Session::pullFlashData('old'),
         ];
 
         return Response::html(View::render($template, $data, $layout), $status);
+    }
+
+    /**
+     * Answers a request whose input failed validation or a business rule.
+     *
+     * - fetch()/API clients get JSON {"error": ..., "errors": {field: message}}
+     *   with the given status (422 invalid data, 409 conflict with current state).
+     * - HTML forms are redirected back with the errors and the submitted input
+     *   flashed, so the form is redisplayed filled in (Post/Redirect/Get).
+     *
+     * @param array<string, string> $errors field => message
+     * @param list<string>          $keepInput fields to re-fill (never passwords or documents)
+     */
+    protected function invalid(array $errors, string $redirectTo, int $status = 422, array $keepInput = []): Response
+    {
+        $summary = $status === 409
+            ? (string) (reset($errors) ?: 'A operação conflita com o estado atual.')
+            : 'Corrija os campos destacados e tente novamente.';
+
+        if ($this->request->wantsJson()) {
+            return $this->json(['error' => $summary, 'errors' => $errors], $status);
+        }
+
+        $old = [];
+        foreach ($keepInput as $field) {
+            $old[$field] = $this->request->string($field);
+        }
+        Session::flashData('errors', $errors);
+        Session::flashData('old', $old);
+        Session::flash('error', $summary);
+
+        return $this->redirect($redirectTo);
+    }
+
+    /**
+     * Success answer for both kinds of client: JSON payload, or flash + redirect.
+     *
+     * @param array<string, mixed> $payload
+     */
+    protected function done(string $message, string $redirectTo, array $payload = [], int $status = 200): Response
+    {
+        if ($this->request->wantsJson()) {
+            return $this->json(['message' => $message] + $payload, $status);
+        }
+        Session::flash('success', $message);
+
+        return $this->redirect($redirectTo);
     }
 
     /** JSON response for fetch() endpoints. */

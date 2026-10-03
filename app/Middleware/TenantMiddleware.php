@@ -39,7 +39,7 @@ final class TenantMiddleware extends Middleware
             if ($condominium === null) {
                 return $this->chooseTenant($request);
             }
-            TenantContext::set((int) $condominium['id'], (string) $condominium['name']);
+            TenantContext::set((int) $condominium['id'], (string) $condominium['name'], (string) $condominium['timezone']);
 
             return $next($request);
         }
@@ -54,7 +54,11 @@ final class TenantMiddleware extends Middleware
         }
 
         Auth::enterMembership($membership); // refresh role from the database
-        TenantContext::set((int) $membership['condominium_id'], (string) $membership['condominium_name']);
+        TenantContext::set(
+            (int) $membership['condominium_id'],
+            (string) $membership['condominium_name'],
+            (string) $membership['condominium_timezone']
+        );
 
         return $next($request);
     }

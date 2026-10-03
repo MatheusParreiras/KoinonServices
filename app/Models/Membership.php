@@ -34,7 +34,8 @@ final class Membership extends Model
                r.code AS role_code,
                r.name AS role_name,
                c.name AS condominium_name,
-               c.city AS condominium_city
+               c.city AS condominium_city,
+               c.timezone AS condominium_timezone
           FROM condominium_users cu
           JOIN roles r        ON r.id = cu.role_id
           JOIN condominiums c ON c.id = cu.condominium_id

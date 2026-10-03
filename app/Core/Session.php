@@ -128,6 +128,30 @@ final class Session
     }
 
     /**
+     * Flashes structured data for one redirect, e.g. validation errors and the
+     * previously submitted input, so a form can be redisplayed after a POST.
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function flashData(string $key, array $data): void
+    {
+        $_SESSION[self::FLASH_KEY . '_data'][$key] = $data;
+    }
+
+    /**
+     * Returns and removes flashed structured data ([] when absent).
+     *
+     * @return array<string, mixed>
+     */
+    public static function pullFlashData(string $key): array
+    {
+        $value = $_SESSION[self::FLASH_KEY . '_data'][$key] ?? [];
+        unset($_SESSION[self::FLASH_KEY . '_data'][$key]);
+
+        return is_array($value) ? $value : [];
+    }
+
+    /**
      * Returns and removes several flashed values at once, keyed by name.
      *
      * @param list<string> $keys

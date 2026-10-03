@@ -84,6 +84,34 @@ final class Mailer
     }
 
     /**
+     * Tells a resident that a package is waiting at the desk, with the pickup code.
+     * All values are escaped with e(): carrier and description are typed by staff
+     * and could contain HTML.
+     */
+    public function sendPackageNotice(
+        string $toEmail,
+        string $toName,
+        string $condominiumName,
+        string $unitLabel,
+        ?string $carrier,
+        string $pickupCode
+    ): bool {
+        $from = $carrier !== null && $carrier !== '' ? " ({$carrier})" : '';
+        $text = "Olá, {$toName}!\n\n"
+            . "Chegou uma encomenda{$from} para a unidade {$unitLabel} no {$condominiumName}.\n"
+            . "Retire na portaria informando o código: {$pickupCode}\n\n"
+            . "Não compartilhe este código com quem não deve retirar a encomenda.\n";
+        $html = '<p>Olá, ' . e($toName) . '!</p>'
+            . '<p>Chegou uma encomenda' . e($from) . ' para a unidade <strong>' . e($unitLabel)
+            . '</strong> no ' . e($condominiumName) . '.</p>'
+            . '<p>Retire na portaria informando o código: <strong style="font-size:20px;letter-spacing:3px;">'
+            . e($pickupCode) . '</strong></p>'
+            . '<p style="color:#5f6b7a;font-size:13px;">Não compartilhe este código com quem não deve retirar a encomenda.</p>';
+
+        return $this->send($toEmail, $toName, 'Encomenda na portaria - Koinon', $html, $text);
+    }
+
+    /**
      * Placeholder transport for development (MAIL_ENABLED=false): writes the
      * message to storage/logs/mail-dev.log so the activation flow can be tested
      * without an SMTP server.
