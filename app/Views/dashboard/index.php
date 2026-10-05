@@ -6,6 +6,7 @@
  *
  * @var string|null $tenantName
  * @var bool        $canCreateNotice UI only; POST /api/notices enforces the rule.
+ * @var bool        $canManageNotices UI only; the /admin/notices routes enforce the rule.
  */
 ?>
 <section class="page-header">
@@ -13,9 +14,14 @@
         <h1 class="page-header__title">Mural de avisos</h1>
         <p class="page-header__subtitle">Comunicados oficiais de <?= e($tenantName) ?></p>
     </div>
-    <?php if ($canCreateNotice): ?>
-        <button type="button" class="btn btn--primary" id="open-notice-form">Novo aviso</button>
-    <?php endif; ?>
+    <div class="page-header__actions">
+        <?php if ($canManageNotices): ?>
+            <a class="btn" href="/admin/notices">Gerenciar avisos</a>
+        <?php endif; ?>
+        <?php if ($canCreateNotice): ?>
+            <button type="button" class="btn btn--primary" id="open-notice-form">Novo aviso</button>
+        <?php endif; ?>
+    </div>
 </section>
 
 <section id="notice-board" class="panel" aria-live="polite" aria-busy="true">
@@ -77,11 +83,16 @@
                     </select>
                     <span class="form__error" data-error-for="priority"></span>
                 </label>
-                <label class="form__check">
-                    <input type="checkbox" name="is_pinned" value="1">
-                    Fixar no topo do mural
+                <label class="form__field">
+                    <span class="form__label">Expira em (opcional)</span>
+                    <input type="datetime-local" name="expires_at">
+                    <span class="form__error" data-error-for="expires_at"></span>
                 </label>
             </div>
+            <label class="form__check">
+                <input type="checkbox" name="is_pinned" value="1">
+                Fixar no topo do mural
+            </label>
 
             <div class="dialog__actions">
                 <button type="button" class="btn" data-close>Cancelar</button>

@@ -8,6 +8,7 @@ use App\Core\Config;
 use App\Core\Controller;
 use App\Core\Response;
 use App\Core\Session;
+use App\Core\Validator;
 use App\Services\EmailVerificationService;
 use App\Services\VerificationResult;
 
@@ -85,18 +86,10 @@ final class VerificationController extends Controller
     /** @return array<string, string> Field => message. */
     private function validateNewPassword(): array
     {
-        $password = $this->request->string('password');
-        $min = (int) Config::get('security.password_min', 10);
-        $max = (int) Config::get('security.password_max', 128);
+        $v = new Validator($this->request);
+        $v->newPassword();
 
-        if (mb_strlen($password) < $min || mb_strlen($password) > $max) {
-            return ['password' => "A senha deve ter entre {$min} e {$max} caracteres."];
-        }
-        if (!hash_equals($password, $this->request->string('password_confirmation'))) {
-            return ['password_confirmation' => 'As senhas não conferem.'];
-        }
-
-        return [];
+        return $v->errors();
     }
 
     /** @param array<string, string> $errors */

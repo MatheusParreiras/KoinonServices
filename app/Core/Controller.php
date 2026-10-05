@@ -46,7 +46,8 @@ abstract class Controller
      * Answers a request whose input failed validation or a business rule.
      *
      * - fetch()/API clients get JSON {"error": ..., "errors": {field: message}}
-     *   with the given status (422 invalid data, 409 conflict with current state).
+     *   with the given status (422 invalid data, 409 conflict with current state,
+     *   403/429 for Phase 5 account rules and throttling).
      * - HTML forms are redirected back with the errors and the submitted input
      *   flashed, so the form is redisplayed filled in (Post/Redirect/Get).
      *
@@ -55,7 +56,9 @@ abstract class Controller
      */
     protected function invalid(array $errors, string $redirectTo, int $status = 422, array $keepInput = []): Response
     {
-        $summary = $status === 409
+        // 422 = field errors (generic summary); any other status (409 conflict,
+        // 403 own-account rule, 429 throttled...) shows the rule's own message.
+        $summary = $status !== 422
             ? (string) (reset($errors) ?: 'A operação conflita com o estado atual.')
             : 'Corrija os campos destacados e tente novamente.';
 

@@ -46,6 +46,24 @@ final class Response
     }
 
     /**
+     * A file body (CSV export, avatar image).
+     *
+     * With $downloadName the browser saves the file instead of displaying it.
+     * The name is reduced to a safe ASCII set, so it cannot inject header
+     * syntax (quotes, CR/LF) into Content-Disposition.
+     */
+    public static function file(string $body, string $contentType, ?string $downloadName = null): self
+    {
+        $headers = ['Content-Type' => $contentType, 'Content-Length' => (string) strlen($body)];
+        if ($downloadName !== null) {
+            $safe = preg_replace('/[^A-Za-z0-9._-]/', '_', $downloadName) ?: 'download';
+            $headers['Content-Disposition'] = 'attachment; filename="' . $safe . '"';
+        }
+
+        return new self($body, 200, $headers);
+    }
+
+    /**
      * A redirect to a path inside this application. External URLs are refused,
      * so no code path can be turned into an open redirect.
      */

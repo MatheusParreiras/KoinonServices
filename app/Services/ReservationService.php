@@ -88,6 +88,28 @@ final class ReservationService
                     'reservation_date'
                 );
             }
+            // Phase 5: opening hours and maximum duration configured by the manager.
+            // Times are local wall-clock values, compared as "HH:MM:SS" strings.
+            if ($area['opens_at'] !== null && $area['closes_at'] !== null) {
+                $opens = (string) $area['opens_at'];
+                $closes = (string) $area['closes_at'];
+                if ($startsAt->format('H:i:s') < $opens || $endsAt->format('H:i:s') > $closes) {
+                    throw new BusinessRuleException(
+                        'Esta área funciona das ' . substr($opens, 0, 5) . ' às ' . substr($closes, 0, 5) . '.',
+                        422,
+                        'start_time'
+                    );
+                }
+            }
+            if ($area['max_duration_minutes'] !== null
+                && ($endsAt->getTimestamp() - $startsAt->getTimestamp()) > (int) $area['max_duration_minutes'] * 60
+            ) {
+                throw new BusinessRuleException(
+                    "Cada reserva desta área pode durar no máximo {$area['max_duration_minutes']} minutos.",
+                    422,
+                    'end_time'
+                );
+            }
             if ($area['max_people'] !== null && $guests > (int) $area['max_people']) {
                 throw new BusinessRuleException("Capacidade máxima: {$area['max_people']} pessoas.", 422, 'guest_count');
             }

@@ -189,6 +189,16 @@ abstract class Model
         return [implode(', ', $placeholders), $params];
     }
 
+    /**
+     * "%term%" for a LIKE search, with the user's own % and _ escaped so they
+     * match literally instead of acting as wildcards. The result is still bound
+     * as a parameter, never concatenated into SQL.
+     */
+    protected static function likeContains(string $term): string
+    {
+        return '%' . addcslashes($term, '%_\\') . '%';
+    }
+
     /** @param array<string, mixed> $where */
     private function conditions(array $where, string $prefix): string
     {

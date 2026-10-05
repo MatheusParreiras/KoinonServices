@@ -9,8 +9,11 @@ use App\Core\Controller;
 use App\Core\Response;
 use App\Core\Session;
 use App\Models\Membership;
+use App\Models\User;
+use App\Services\AuditLogger;
 use App\Services\AuthService;
 use App\Services\LoginResult;
+use App\Services\RateLimiter;
 
 /**
  * Login and logout.
@@ -34,6 +37,29 @@ final class AuthController extends Controller
     public function login(): Response
     {
         $email = $this->request->string('email');
+
+        // Phase 5: database rate limit per IP and per submitted e-mail, checked
+        // before the password. Counted for unknown e-mails too, so the answer
+        // (429) does not reveal whether an account exists. The per-account
+        // lockout (5 wrong passwords) still applies on top of this.
+        $limited = !(new RateLimiter())->attempt('login', [
+            'ip'      => $this->request->ip(),
+            'account' => User::normalizeEmail($email),
+        ]);
+        if ($limited) {
+            (new AuditLogger($this->request))->record('auth.login_rate_limited', null, null, null, null, [
+                'email' => User::normalizeEmail($email),
+            ]);
+            Session::flash('error', 'Muitas tentativas de login. Aguarde alguns minutos e tente novamente.');
+
+            // Rendered directly (not redirected) so the response carries 429.
+            return $this->view('auth/login', [
+                'title'           => 'Entrar',
+                'email'           => $email,
+                'unverifiedEmail' => null,
+            ], 429, 'layouts/auth');
+        }
+
         $result = (new AuthService())->attempt($email, $this->request->string('password'), $this->request);
 
         if ($result->status === LoginResult::INVALID) {

@@ -152,6 +152,78 @@ final class Validator
         return $normalized;
     }
 
+    /**
+     * An e-mail address, returned trimmed and lower-cased (the form users.email
+     * is stored in). filter_var() also rejects header-injection characters
+     * such as CR/LF, which matters because the address is used by the mailer.
+     */
+    public function email(string $field, string $label = 'E-mail'): ?string
+    {
+        $value = mb_strtolower(trim($this->request->string($field)));
+        if ($value === '' || mb_strlen($value) > 254 || filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
+            $this->errors[$field] = "{$label} inválido.";
+
+            return null;
+        }
+
+        return $value;
+    }
+
+    /**
+     * A new password and its confirmation (config/security.php limits).
+     *
+     * Returns the raw password for the caller to hash; it is never trimmed,
+     * because spaces are legitimate password characters. The comparison uses
+     * hash_equals() so its timing does not depend on where the strings differ.
+     */
+    public function newPassword(string $field = 'password', string $confirmation = 'password_confirmation'): ?string
+    {
+        $password = $this->request->string($field);
+        $min = (int) Config::get('security.password_min', 10);
+        $max = (int) Config::get('security.password_max', 128);
+
+        if (mb_strlen($password) < $min || mb_strlen($password) > $max) {
+            $this->errors[$field] = "A senha deve ter entre {$min} e {$max} caracteres.";
+
+            return null;
+        }
+        if (!hash_equals($password, $this->request->string($confirmation))) {
+            $this->errors[$confirmation] = 'As senhas não conferem.';
+
+            return null;
+        }
+
+        return $password;
+    }
+
+    /** Optional phone number: digits, spaces and + ( ) - only, 8 to 30 characters. */
+    public function phone(string $field, string $label = 'Telefone'): ?string
+    {
+        $value = trim($this->request->string($field));
+        if ($value === '') {
+            return null;
+        }
+        if (preg_match('/^[0-9+()\s-]{8,30}$/', $value) !== 1) {
+            $this->errors[$field] = "{$label} inválido.";
+
+            return null;
+        }
+
+        return $value;
+    }
+
+    /** A local date and time in Y-m-d\TH:i (the format of <input type="datetime-local">). */
+    public function dateTimeLocal(string $field, string $label): ?string
+    {
+        return $this->dateTimeFormat($field, $label, 'Y-m-d\TH:i');
+    }
+
+    /** True when the field was sent with a non-blank value (for optional fields). */
+    public function filled(string $field): bool
+    {
+        return trim($this->request->string($field)) !== '';
+    }
+
     /** Adds an error found by a later business check (e.g. "date in the past"). */
     public function addError(string $field, string $message): void
     {

@@ -20,4 +20,30 @@ final class Role extends Model
 
         return $row === null ? null : (int) $row['id'];
     }
+
+    public function codeById(int $id): ?string
+    {
+        $row = $this->fetchOne('SELECT code FROM roles WHERE id = :id', ['id' => $id]);
+
+        return $row === null ? null : (string) $row['code'];
+    }
+
+    /**
+     * Role ids keyed by code, limited to the given codes (an allowlist written
+     * in code). Used to turn a submitted role code into an id safely.
+     *
+     * @param list<string> $codes
+     * @return array<string, int>
+     */
+    public function idsByCodes(array $codes): array
+    {
+        $ids = [];
+        foreach ($this->fetchAll('SELECT id, code FROM roles ORDER BY id') as $row) {
+            if (in_array($row['code'], $codes, true)) {
+                $ids[(string) $row['code']] = (int) $row['id'];
+            }
+        }
+
+        return $ids;
+    }
 }

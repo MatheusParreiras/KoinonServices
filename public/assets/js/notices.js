@@ -116,6 +116,7 @@ function setupNoticeForm() {
                 body: String(formData.get('body') ?? ''),
                 priority: String(formData.get('priority') ?? 'normal'),
                 is_pinned: formData.get('is_pinned') === '1',
+                expires_at: String(formData.get('expires_at') ?? ''),
             });
             dialog.close();
             await loadNotices();

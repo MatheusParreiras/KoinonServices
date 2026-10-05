@@ -947,3 +947,359 @@ input[type="number"] {
 }
 
 /* End of Phase 3 styles */
+
+/* =====================================================================
+ * Phase 5 - administration (platform, condominium setup, users, reports)
+ * ===================================================================== */
+
+/* ---------- Shell additions ---------- */
+
+.sidebar__section {
+    padding: 16px 24px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+}
+
+.sidebar__list > .sidebar__section:first-child {
+    padding-top: 4px;
+}
+
+a.topbar__name {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+a.topbar__name:hover {
+    text-decoration: underline;
+}
+
+.page-header__actions {
+    display: flex;
+    gap: 12px;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
+}
+
+.panel + .panel,
+.grid-2 + .panel,
+.kpis + .grid-2 {
+    margin-top: 24px;
+}
+
+.panel__subtitle {
+    margin: 20px 0 10px;
+    font-size: 14px;
+}
+
+.panel__title-action {
+    margin-left: auto;
+}
+
+.panel--danger {
+    border-color: #fecdca;
+}
+
+.strong {
+    font-weight: 600;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+/* Visually hidden but read by screen readers (labels of compact filters). */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn--danger {
+    color: #ffffff;
+    background: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+.btn--danger:hover {
+    background: #912018;
+}
+
+/* ---------- Filters toolbar & pager ---------- */
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.filters--flush {
+    padding: 0 0 20px;
+    border-bottom: 0;
+}
+
+.filters__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 160px;
+}
+
+.filters__field--grow {
+    flex: 1 1 240px;
+}
+
+.filters__or {
+    padding-bottom: 10px;
+    font-size: 13px;
+}
+
+.filters input,
+.filters select {
+    width: 100%;
+    padding: 8px 10px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+}
+
+.filters .feedback {
+    flex-basis: auto;
+    align-self: center;
+}
+
+.pager {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--color-border);
+}
+
+.pager__info {
+    margin-right: auto;
+    font-size: 13px;
+}
+
+/* ---------- Status pills (Phase 5 states) ---------- */
+
+.pill--active {
+    background: var(--color-success-soft);
+    color: var(--color-success);
+}
+
+.pill--invited {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+}
+
+.pill--expired,
+.pill--suspended {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+}
+
+.pill--inactive,
+.pill--cancelled,
+.pill--default {
+    background: #eef0f3;
+    color: var(--color-muted);
+}
+
+/* ---------- KPI tiles (platform overview, period report) ---------- */
+
+.kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 20px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius);
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.kpi--success {
+    border-left-color: var(--color-success);
+}
+
+.kpi--danger {
+    border-left-color: var(--color-danger);
+}
+
+.kpi--link:hover {
+    background: var(--color-primary-soft);
+}
+
+.kpi__label {
+    font-size: 13px;
+    color: var(--color-muted);
+}
+
+.kpi__value {
+    font-size: 24px;
+    font-variant-numeric: tabular-nums;
+}
+
+.kpi__hint {
+    font-size: 12px;
+    color: var(--color-muted);
+}
+
+.kpis[aria-busy="true"] .kpi__value {
+    opacity: 0.5;
+}
+
+/* ---------- Detail lists ---------- */
+
+.details {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 8px 16px;
+    margin: 0;
+    font-size: 14px;
+}
+
+.details dt {
+    color: var(--color-muted);
+}
+
+.details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.person-list,
+.event-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.person-list__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.person-list__item > div {
+    flex: 1;
+    min-width: 0;
+}
+
+.event-list__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.event-list__item:last-child {
+    border-bottom: 0;
+}
+
+.audit__details {
+    max-width: 360px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--color-muted);
+    overflow-wrap: anywhere;
+}
+
+/* ---------- Account: avatar ---------- */
+
+.avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+}
+
+.avatar--empty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+}
+
+input[type="file"],
+input[type="datetime-local"] {
+    font: inherit;
+    font-size: 14px;
+}
+
+input[type="datetime-local"],
+input[type="tel"],
+input[type="search"] {
+    width: 100%;
+    padding: 9px 12px;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+}
+
+/* ---------- Confirmation dialog ---------- */
+
+.dialog--confirm {
+    max-width: 440px;
+}
+
+.dialog--confirm p {
+    margin: 0;
+}
+
+/* End of Phase 5 styles */

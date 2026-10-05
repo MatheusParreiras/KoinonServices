@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Models\Membership;
 use App\Models\User;
 
 /**
@@ -105,14 +106,50 @@ final class Auth
             && $user['status'] === 'active'
             && (int) $user['session_version'] === Session::get('session_version');
 
-        if (!$valid) {
-            Logger::info('Session invalidated', ['user_id' => $userId]);
+        // Phase 5: a tenant user whose last active membership was deactivated, or
+        // whose condominium(s) were suspended, loses the session on the next
+        // request, not only at the next login. Super Admins have no membership.
+        // TenantMiddleware still re-checks the CURRENT condominium on tenant routes;
+        // this check also covers routes without "tenant" (e.g. /account).
+        $hasAccess = $valid
+            && ((bool) $user['is_super_admin'] || (new Membership())->hasAnyActive($userId));
+
+        if (!$valid || !$hasAccess) {
+            Logger::info('Session invalidated', ['user_id' => $userId, 'reason' => $valid ? 'no_active_membership' : 'user_state']);
             self::logout();
+            if ($valid) {
+                Session::flash('warning', 'Seu acesso foi desativado ou o condomínio está suspenso. Fale com a administração.');
+            }
 
             return null;
         }
 
         return self::$user = $user;
+    }
+
+    /**
+     * Keeps the CURRENT session valid after the user's own password or e-mail
+     * change, which incremented users.session_version and so ended every other
+     * session.
+     *
+     * The session id is regenerated (an id observed before the change is now
+     * useless) and the CSRF token is rotated. The tenant and role stay as they
+     * were; TenantMiddleware re-validates them on the next request anyway.
+     */
+    public static function refreshAfterCredentialChange(int $userId): void
+    {
+        $user = (new User())->find($userId);
+        if ($user === null) {
+            self::logout();
+
+            return;
+        }
+
+        Session::regenerate();
+        Csrf::rotate();
+        Session::set('session_version', (int) $user['session_version']);
+        self::$user = $user;
+        self::$resolved = true;
     }
 
     public static function check(): bool
@@ -157,6 +194,12 @@ final class Auth
         $role = self::roleCode();
 
         return $role !== null && in_array($role, $roles, true);
+    }
+
+    /** Human-readable name of any role code (lists, e-mails). */
+    public static function labelFor(string $roleCode): string
+    {
+        return self::ROLE_LABELS[$roleCode] ?? $roleCode;
     }
 
     /** Human-readable name of the current role, for the header. */

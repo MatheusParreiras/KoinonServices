@@ -11,7 +11,7 @@
  * @var bool                  $isSuperAdmin
  * @var string|null           $tenantName
  * @var array<string, string> $flashes
- * @var list<array{key: string, label: string, href: string}> $navigation Entries allowed for the current role.
+ * @var list<array{key: string, label: string, href: string, section?: string}> $navigation Entries allowed for the current role.
  */
 ?>
 <!doctype html>
@@ -33,13 +33,14 @@
         <?php endif; ?>
         <?php if ($isSuperAdmin): ?>
             <span class="tag tag--admin">Modo Super Admin</span>
+            <a class="topbar__switch" href="/platform">Plataforma</a>
         <?php endif; ?>
         <a class="topbar__switch" href="/select-condominium">Trocar condomínio</a>
     </div>
 
     <div class="topbar__user">
         <div class="topbar__identity">
-            <span class="topbar__name"><?= e($currentUserName) ?></span>
+            <a class="topbar__name" href="/account"><?= e($currentUserName) ?></a>
             <span class="topbar__role"><?= e($currentRole) ?></span>
         </div>
         <form method="post" action="/logout">
@@ -53,6 +54,9 @@
     <nav class="sidebar" aria-label="Módulos">
         <ul class="sidebar__list">
             <?php foreach ($navigation as $item): ?>
+                <?php if (isset($item['section'])): ?>
+                    <li class="sidebar__section"><?= e($item['section']) ?></li>
+                <?php endif; ?>
                 <li>
                     <a class="sidebar__link<?= $activeNav === $item['key'] ? ' is-active' : '' ?>"
                        href="<?= e($item['href']) ?>"

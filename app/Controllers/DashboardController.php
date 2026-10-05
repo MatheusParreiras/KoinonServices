@@ -32,6 +32,7 @@ final class DashboardController extends Controller
             'title'           => 'Mural de avisos',
             'activeNav'       => 'notices',
             'canCreateNotice' => Auth::hasRole(NoticeController::CREATOR_ROLES),
+            'canManageNotices' => Auth::hasRole(Admin\AdminController::MANAGERS),
             'scripts'         => ['js/notices.js'],
         ]);
     }

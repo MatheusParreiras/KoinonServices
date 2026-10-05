@@ -15,8 +15,8 @@ use App\Models\User;
 /**
  * Account activation by e-mail (Phase 1, FR-AUTH-12 to FR-AUTH-17).
  *
- *  1. sendNew(): 32 random bytes -> 64 hex chars. Only hash('sha256', raw) is
- *     stored; the raw token exists only in the e-mailed link.
+ *  1. sendNew(): 32 random bytes -> 64 hex chars (TokenService). Only the
+ *     SHA-256 hash is stored; the raw token exists only in the e-mailed link.
  *  2. inspect(): used by GET /verify-email to show the right page. Read-only:
  *     link scanners in mail clients may open the link, so GET never consumes.
  *  3. verify(): POST /verify-email. In one transaction, locks the token row,
@@ -30,7 +30,8 @@ final class EmailVerificationService
         private readonly EmailVerificationToken $tokens = new EmailVerificationToken(),
         private readonly User $users = new User(),
         private readonly Mailer $mailer = new Mailer(),
-        private readonly AuditLog $audit = new AuditLog()
+        private readonly AuditLog $audit = new AuditLog(),
+        private readonly TokenService $tokenService = new TokenService()
     ) {
     }
 
@@ -43,13 +44,13 @@ final class EmailVerificationService
     public function sendNew(array $user, string $ip): bool
     {
         $userId = (int) $user['id'];
-        $rawToken = bin2hex(random_bytes(32));
+        ['raw' => $rawToken, 'hash' => $tokenHash] = $this->tokenService->generate();
 
-        Database::transaction(function () use ($userId, $rawToken, $ip): void {
+        Database::transaction(function () use ($userId, $tokenHash, $ip): void {
             $this->tokens->revokeOutstanding($userId);
             $this->tokens->create(
                 $userId,
-                hash('sha256', $rawToken),
+                $tokenHash,
                 $ip,
                 (int) Config::get('security.verification_ttl_hours', 24)
             );
@@ -88,11 +89,11 @@ final class EmailVerificationService
     /** Read-only check of a raw token (for the GET landing page). */
     public function inspect(string $rawToken): VerificationResult
     {
-        if (!self::isWellFormed($rawToken)) {
+        if (!$this->tokenService->isWellFormed($rawToken)) {
             return new VerificationResult(VerificationResult::INVALID);
         }
 
-        $token = $this->tokens->findByHash(hash('sha256', $rawToken));
+        $token = $this->tokens->findByHash($this->tokenService->hash($rawToken));
         $user = $token === null ? null : $this->users->find((int) $token['user_id']);
 
         return new VerificationResult($this->evaluate($token, $user), $user);
@@ -106,14 +107,14 @@ final class EmailVerificationService
      */
     public function verify(string $rawToken, ?string $newPasswordHash, Request $request): VerificationResult
     {
-        if (!self::isWellFormed($rawToken)) {
+        if (!$this->tokenService->isWellFormed($rawToken)) {
             return new VerificationResult(VerificationResult::INVALID);
         }
 
         return Database::transaction(function () use ($rawToken, $newPasswordHash, $request): VerificationResult {
             // Lock the token, then the user: concurrent submits are serialised,
             // and the second one sees consumed_at set and gets ALREADY_USED.
-            $token = $this->tokens->findByHash(hash('sha256', $rawToken), true);
+            $token = $this->tokens->findByHash($this->tokenService->hash($rawToken), true);
             $user = $token === null ? null : $this->users->findForUpdate((int) $token['user_id']);
 
             $state = $this->evaluate($token, $user);
@@ -134,12 +135,6 @@ final class EmailVerificationService
 
             return new VerificationResult(VerificationResult::VALID, $user);
         });
-    }
-
-    /** Tokens are exactly 64 lowercase hex chars; anything else is rejected without a query. */
-    private static function isWellFormed(string $rawToken): bool
-    {
-        return preg_match('/^[a-f0-9]{64}$/', $rawToken) === 1;
     }
 
     /**

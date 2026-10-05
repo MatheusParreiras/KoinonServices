@@ -106,4 +106,58 @@ final class User extends Model
             ['password_hash' => $passwordHash, 'id' => $id]
         );
     }
+
+    /**
+     * Stores a new password hash and increments session_version, which ends
+     * every existing session of the user on their next request (Auth::user()).
+     * The lockout counter is cleared: whoever proved ownership of the account
+     * (current password or e-mailed token) should not stay locked out.
+     */
+    public function updatePassword(int $id, string $passwordHash): void
+    {
+        $this->execute(
+            'UPDATE users
+                SET password_hash = :password_hash,
+                    session_version = session_version + 1,
+                    failed_login_count = 0,
+                    locked_until = NULL
+              WHERE id = :id',
+            ['password_hash' => $passwordHash, 'id' => $id]
+        );
+    }
+
+    /** Name and phone, edited by the user themself (never by a manager: users is global). */
+    public function updateProfile(int $id, string $fullName, ?string $phone): void
+    {
+        $this->execute(
+            'UPDATE users SET full_name = :full_name, phone = :phone WHERE id = :id',
+            ['full_name' => $fullName, 'phone' => $phone, 'id' => $id]
+        );
+    }
+
+    /** Relative path under storage/uploads, or null to remove the avatar. */
+    public function updateAvatar(int $id, ?string $avatarPath): void
+    {
+        $this->execute(
+            'UPDATE users SET avatar_path = :avatar_path WHERE id = :id',
+            ['avatar_path' => $avatarPath, 'id' => $id]
+        );
+    }
+
+    /**
+     * Moves the account to a confirmed new address. The new address was proven
+     * by the e-mailed token, so it is verified now; other sessions end because
+     * the login identifier changed.
+     */
+    public function changeEmail(int $id, string $newEmail): void
+    {
+        $this->execute(
+            'UPDATE users
+                SET email = :email,
+                    email_verified_at = UTC_TIMESTAMP(),
+                    session_version = session_version + 1
+              WHERE id = :id',
+            ['email' => self::normalizeEmail($newEmail), 'id' => $id]
+        );
+    }
 }

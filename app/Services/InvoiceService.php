@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Core\Database;
+use App\Core\Request;
 use App\Core\TenantContext;
 use App\Models\FinancialCategory;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\Payment;
 use App\Models\TenantCounter;
 use App\Models\Unit;
 use PDOException;
 
 /**
- * Creating charges (invoices) for units.
+ * Creating charges (invoices) for units, and (Phase 5) recording a manual
+ * payment or cancelling an invoice. Invoices are never hard-deleted: a
+ * cancelled invoice stays in the table with its reason.
  */
 final class InvoiceService
 {
@@ -83,5 +87,72 @@ final class InvoiceService
             }
             throw $e;
         }
+    }
+
+    /**
+     * Records a full manual payment of an open invoice.
+     *
+     * One transaction: lock the invoice (tenant-scoped), check it is still
+     * open, insert the payment with the invoice's own DECIMAL total (a string
+     * read from MySQL, never recomputed in PHP), mark the invoice paid, audit.
+     * The row lock makes a double click (or two managers) record one payment only.
+     *
+     * @param string $paidOn Local date Y-m-d (not in the future; checked by the caller).
+     * @throws BusinessRuleException 404 not in this condominium, 409 not open.
+     */
+    public function recordPayment(int $invoiceId, string $paidOn, string $method, ?string $notes, int $managerUserId, Request $request): void
+    {
+        Database::transaction(function () use ($invoiceId, $paidOn, $method, $notes, $managerUserId, $request): void {
+            $invoice = $this->invoices->lockForUpdate($invoiceId)
+                ?? throw new BusinessRuleException('Cobrança não encontrada.', 404);
+            if ($invoice['status'] !== 'open') {
+                throw new BusinessRuleException('Só é possível registrar pagamento de cobranças em aberto.', 409);
+            }
+            if ($paidOn < (string) $invoice['issue_date']) {
+                throw new BusinessRuleException('A data do pagamento não pode ser anterior à emissão.', 422, 'paid_on');
+            }
+
+            // Local midnight of the payment date, stored in UTC like every DATETIME.
+            $paidAtUtc = TenantContext::localToUtc($paidOn);
+            (new Payment())->insert([
+                'invoice_id'          => $invoiceId,
+                'amount'              => (string) $invoice['total_amount'],
+                'paid_at'             => $paidAtUtc,
+                'payment_method'      => $method,
+                'recorded_by_user_id' => $managerUserId,
+                'notes'               => $notes,
+            ]);
+            $this->invoices->markPaid($invoiceId, $paidAtUtc);
+
+            (new AuditLogger($request))->tenant('invoice.paid', 'invoice', $invoiceId, [
+                'invoice_number' => (int) $invoice['invoice_number'],
+                'amount'         => (string) $invoice['total_amount'],
+                'paid_on'        => $paidOn,
+                'method'         => $method,
+            ]);
+        });
+    }
+
+    /**
+     * Cancels an open invoice (kept, with its reason; never deleted).
+     *
+     * @throws BusinessRuleException 404 not in this condominium, 409 not open.
+     */
+    public function cancel(int $invoiceId, string $reason, Request $request): void
+    {
+        Database::transaction(function () use ($invoiceId, $reason, $request): void {
+            $invoice = $this->invoices->lockForUpdate($invoiceId)
+                ?? throw new BusinessRuleException('Cobrança não encontrada.', 404);
+            if ($invoice['status'] !== 'open') {
+                throw new BusinessRuleException('Só é possível cancelar cobranças em aberto.', 409);
+            }
+
+            $this->invoices->cancel($invoiceId, $reason);
+            (new AuditLogger($request))->tenant('invoice.cancelled', 'invoice', $invoiceId, [
+                'invoice_number' => (int) $invoice['invoice_number'],
+                'amount'         => (string) $invoice['total_amount'],
+                'reason'         => $reason,
+            ]);
+        });
     }
 }

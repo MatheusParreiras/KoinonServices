@@ -8,6 +8,7 @@ use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Response;
 use App\Core\TenantContext;
+use App\Core\Validator;
 use App\Models\AuditLog;
 use App\Models\Notice;
 use DateTimeImmutable;
@@ -60,6 +61,19 @@ final class NoticeController extends Controller
         if (!in_array($priority, Notice::PRIORITIES, true)) {
             $errors['priority'] = 'Prioridade inválida.';
         }
+        // Phase 5: optional expiry, typed in the condominium's local time.
+        $expiresAt = null;
+        $v = new Validator($this->request);
+        if ($v->filled('expires_at')) {
+            $local = $v->dateTimeLocal('expires_at', 'Data de expiração');
+            if ($local !== null) {
+                $expiresAt = TenantContext::localToUtc($local);
+                if ($expiresAt <= gmdate('Y-m-d H:i:s')) {
+                    $v->addError('expires_at', 'A expiração deve ser no futuro.');
+                }
+            }
+            $errors += $v->errors();
+        }
         if ($errors !== []) {
             return $this->json(['errors' => $errors], 422);
         }
@@ -79,6 +93,7 @@ final class NoticeController extends Controller
             'is_pinned'             => $isPinned ? 1 : 0,
             'status'                => 'published',
             'publish_at'            => gmdate('Y-m-d H:i:s'),
+            'expires_at'            => $expiresAt,
         ]);
 
         (new AuditLog())->record('notice.published', $this->request, $userId, TenantContext::id(), 'notice', $id);

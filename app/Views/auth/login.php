@@ -34,5 +34,7 @@
 </form>
 
 <p class="auth__links">
+    <a href="/account/forgot-password">Esqueci minha senha</a>
+    <span aria-hidden="true">·</span>
     <a href="/verify-email/resend">Não recebeu o e-mail de ativação?</a>
 </p>

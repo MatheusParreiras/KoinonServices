@@ -19,6 +19,7 @@ final class Request
      * @param array<string, mixed>  $query  Query-string parameters ($_GET).
      * @param array<string, mixed>  $body   Form fields ($_POST) or decoded JSON body.
      * @param array<string, mixed>  $server Server variables ($_SERVER).
+     * @param array<string, mixed>  $files  Uploaded files ($_FILES).
      */
     public function __construct(
         private readonly string $method,
@@ -26,7 +27,8 @@ final class Request
         private readonly array $query,
         private readonly array $body,
         private readonly array $server,
-        private readonly bool $malformedJson = false
+        private readonly bool $malformedJson = false,
+        private readonly array $files = []
     ) {
     }
 
@@ -49,7 +51,7 @@ final class Request
             $malformed = $raw !== false && trim($raw) !== '' && !is_array($decoded);
         }
 
-        return new self($method, $path, $_GET, $body, $_SERVER, $malformed);
+        return new self($method, $path, $_GET, $body, $_SERVER, $malformed, $_FILES);
     }
 
     public function method(): string
@@ -72,6 +74,40 @@ final class Request
     public function query(string $key, mixed $default = null): mixed
     {
         return $this->query[$key] ?? $default;
+    }
+
+    /**
+     * Returns a query-string value as a trimmed string, or '' when it is missing
+     * or not a string (e.g. ?q[]=x). Used for list filters and search boxes.
+     */
+    public function queryString(string $key): string
+    {
+        $value = $this->query[$key] ?? '';
+
+        return is_string($value) ? trim($value) : '';
+    }
+
+    /**
+     * One uploaded file from a multipart form, or null when the field is absent,
+     * empty, or was sent as an array (name[]=...). The caller still validates
+     * size and content: the browser-supplied name and type are not trusted.
+     *
+     * @return array{name: string, type: string, tmp_name: string, error: int, size: int}|null
+     */
+    public function file(string $key): ?array
+    {
+        $file = $this->files[$key] ?? null;
+        if (!is_array($file) || !is_int($file['error'] ?? null) || $file['error'] === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+
+        return [
+            'name'     => is_string($file['name'] ?? null) ? $file['name'] : '',
+            'type'     => is_string($file['type'] ?? null) ? $file['type'] : '',
+            'tmp_name' => is_string($file['tmp_name'] ?? null) ? $file['tmp_name'] : '',
+            'error'    => $file['error'],
+            'size'     => is_int($file['size'] ?? null) ? $file['size'] : 0,
+        ];
     }
 
     /** Returns a body value (form field or JSON property). */

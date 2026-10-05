@@ -63,6 +63,15 @@ final class Membership extends Model
         );
     }
 
+    /**
+     * True when the user can still enter at least one condominium (active
+     * membership in an active condominium). Checked on every request by Auth.
+     */
+    public function hasAnyActive(int $userId): bool
+    {
+        return $this->fetchOne(self::ACTIVE_SELECT . ' LIMIT 1', ['user_id' => $userId]) !== null;
+    }
+
     /** True when the user has any membership (any status) in the condominium. */
     public function exists(int $userId, int $condominiumId): bool
     {
@@ -70,5 +79,45 @@ final class Membership extends Model
             'SELECT 1 FROM condominium_users WHERE user_id = :user_id AND condominium_id = :condominium_id',
             ['user_id' => $userId, 'condominium_id' => $condominiumId]
         ) !== null;
+    }
+
+    /**
+     * Creates a membership in status 'invited' (Phase 5). It grants nothing
+     * until accepted: every access query requires status = 'active'.
+     */
+    public function createInvited(int $condominiumId, int $userId, int $roleId): void
+    {
+        $this->execute(
+            "INSERT INTO condominium_users (condominium_id, user_id, role_id, status)
+             VALUES (:condominium_id, :user_id, :role_id, 'invited')",
+            ['condominium_id' => $condominiumId, 'user_id' => $userId, 'role_id' => $roleId]
+        );
+    }
+
+    /**
+     * Locks one membership row for the rest of the transaction.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function lockFor(int $condominiumId, int $userId): ?array
+    {
+        return $this->fetchOne(
+            'SELECT * FROM condominium_users
+              WHERE condominium_id = :condominium_id AND user_id = :user_id
+              FOR UPDATE',
+            ['condominium_id' => $condominiumId, 'user_id' => $userId]
+        );
+    }
+
+    /** Turns an accepted invitation into an active membership. */
+    public function activateInvited(int $condominiumId, int $userId, int $approvedBy): void
+    {
+        $this->execute(
+            "UPDATE condominium_users
+                SET status = 'active', approved_at = UTC_TIMESTAMP(), approved_by_user_id = :approved_by,
+                    deactivated_at = NULL, deactivated_by_user_id = NULL
+              WHERE condominium_id = :condominium_id AND user_id = :user_id AND status = 'invited'",
+            ['approved_by' => $approvedBy, 'condominium_id' => $condominiumId, 'user_id' => $userId]
+        );
     }
 }

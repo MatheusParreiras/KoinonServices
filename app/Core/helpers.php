@@ -111,6 +111,33 @@ if (!function_exists('field_error')) {
     }
 }
 
+if (!function_exists('partial')) {
+    /**
+     * Renders a view fragment (app/Views/partials/...) without a layout. The
+     * fragment escapes its own output, so the result is printed as-is.
+     *
+     * @param array<string, mixed> $data
+     */
+    function partial(string $template, array $data = []): string
+    {
+        return App\Core\View::render('partials/' . $template, $data, null);
+    }
+}
+
+if (!function_exists('pill')) {
+    /**
+     * A status badge: <span class="pill pill--{variant}">label</span>.
+     * The variant becomes a CSS class, so it is restricted to [a-z_] (status
+     * codes from the database), and the label is escaped.
+     */
+    function pill(string $variant, string $label): string
+    {
+        $variant = preg_match('/^[a-z_]+$/', $variant) === 1 ? $variant : 'default';
+
+        return '<span class="pill pill--' . $variant . '">' . e($label) . '</span>';
+    }
+}
+
 if (!function_exists('asset')) {
     /**
      * URL of a file in public/assets with a cache-busting version (file mtime),

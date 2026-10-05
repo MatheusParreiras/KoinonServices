@@ -73,4 +73,22 @@ final class TenantContext
     {
         return self::now()->format('Y-m-d');
     }
+
+    /**
+     * Converts a local wall-clock value of the condominium (e.g. "2026-10-05" or
+     * "2026-10-05T18:30" from a form) into the UTC "Y-m-d H:i:s" stored in
+     * DATETIME columns (Phase 1, NFR-DATA-02). A date alone means local midnight.
+     */
+    public static function localToUtc(string $local): string
+    {
+        $date = new DateTimeImmutable(str_replace('T', ' ', $local), self::timezone());
+
+        return $date->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+    }
+
+    /** The inverse of localToUtc(), in the given format (default: datetime-local input value). */
+    public static function utcToLocal(string $utc, string $format = 'Y-m-d\TH:i'): string
+    {
+        return (new DateTimeImmutable($utc, new DateTimeZone('UTC')))->setTimezone(self::timezone())->format($format);
+    }
 }
