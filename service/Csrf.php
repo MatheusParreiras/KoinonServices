@@ -202,7 +202,7 @@ class Csrf
         echo '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
             . '<title>Ação bloqueada</title>'
-            . '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">'
+            . '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" rel="stylesheet">'
             . '</head><body class="bg-light"><div class="container py-5" style="max-width:560px">'
             . '<div class="alert alert-warning shadow-sm">'
             . '<h5 class="alert-heading">Ação bloqueada por segurança</h5>'
