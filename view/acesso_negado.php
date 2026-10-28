@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/../service/Configuracao.php";
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -82,14 +84,14 @@ $perfil = $_SESSION["usuario_perfil"] ?? "Não identificado";
                     <div class="d-flex justify-content-center gap-2 mt-4">
 
                         <a
-                            href="/koinon-service/view/dashboard.php"
+                            href="<?= htmlspecialchars(Configuracao::url("view/dashboard.php")) ?>"
                             class="btn btn-primary"
                         >
                             Voltar ao Dashboard
                         </a>
 
                         <a
-                            href="/koinon-service/view/login.php"
+                            href="<?= htmlspecialchars(Configuracao::url("view/login.php")) ?>"
                             class="btn btn-outline-secondary"
                         >
                             Voltar ao Login

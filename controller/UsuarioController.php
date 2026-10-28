@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../model/dao/UsuarioDAO.php";
 require_once __DIR__ . "/../model/dto/UsuarioDTO.php";
+require_once __DIR__ . "/../service/Configuracao.php";
 
 class UsuarioController
 {
@@ -216,7 +217,7 @@ if (
     $id = (int) $_GET["id"];
 
     if ($id <= 0) {
-        header("Location: /koinon-service/view/usuario/index.php?erro=1");
+        header("Location: " . Configuracao::url("view/usuario/index.php?erro=1"));
         exit;
     }
 
@@ -232,14 +233,14 @@ if (
         if ($resultado) {
 
             header(
-                "Location: /koinon-service/view/usuario/index.php?sucesso=1"
+                "Location: " . Configuracao::url("view/usuario/index.php?sucesso=1")
             );
 
             exit;
         }
 
         header(
-            "Location: /koinon-service/view/usuario/index.php?erro=1"
+            "Location: " . Configuracao::url("view/usuario/index.php?erro=1")
         );
 
         exit;
@@ -256,14 +257,14 @@ if (
         if ($resultado) {
 
             header(
-                "Location: /koinon-service/view/usuario/index.php?sucesso=1"
+                "Location: " . Configuracao::url("view/usuario/index.php?sucesso=1")
             );
 
             exit;
         }
 
         header(
-            "Location: /koinon-service/view/usuario/index.php?erro=1"
+            "Location: " . Configuracao::url("view/usuario/index.php?erro=1")
         );
 
         exit;

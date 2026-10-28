@@ -8,6 +8,7 @@ require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/EncomendaController.php";
 require_once __DIR__ . "/../../model/dto/EncomendaDTO.php";
 require_once __DIR__ . "/../../service/Erro.php";
+require_once __DIR__ . "/../../service/Configuracao.php";
 
 PermissaoController::exigirPortaria();
 
@@ -346,7 +347,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         </a>
 
         <a
-            href="/koinon-service/logout.php"
+            href="<?= htmlspecialchars(Configuracao::url("logout.php")) ?>"
             class="btn btn-outline-light btn-sm"
         >
             Sair

@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../model/dao/Conexao.php";
 require_once __DIR__ . "/../service/Csrf.php";
+require_once __DIR__ . "/../service/Configuracao.php";
 
 class PermissaoController
 {
@@ -45,7 +46,7 @@ class PermissaoController
             empty($_SESSION["usuario_perfil"])
         ) {
             header(
-                "Location: /koinon-service/view/login.php"
+                "Location: " . Configuracao::url("view/login.php")
             );
 
             exit;
@@ -94,14 +95,14 @@ class PermissaoController
 
                 if (!$lgpdAceito) {
                     header(
-                        "Location: /koinon-service/view/lgpd.php"
+                        "Location: " . Configuracao::url("view/lgpd.php")
                     );
                     exit;
                 }
 
                 if ((int) ($usuario["senha_definida"] ?? 0) !== 1) {
                     header(
-                        "Location: /koinon-service/view/definir_senha.php"
+                        "Location: " . Configuracao::url("view/definir_senha.php")
                     );
                     exit;
                 }
@@ -115,7 +116,7 @@ class PermissaoController
                 $_SESSION["lgpd_aceito"] = false;
 
                 header(
-                    "Location: /koinon-service/view/lgpd.php"
+                    "Location: " . Configuracao::url("view/lgpd.php")
                 );
 
                 exit;
@@ -209,7 +210,7 @@ class PermissaoController
         ) {
 
             header(
-                "Location: /koinon-service/view/acesso_negado.php"
+                "Location: " . Configuracao::url("view/acesso_negado.php")
             );
 
             exit;
@@ -356,7 +357,7 @@ class PermissaoController
          */
 
         header(
-            "Location: /koinon-service/"
+            "Location: " . Configuracao::url("")
         );
 
         exit;

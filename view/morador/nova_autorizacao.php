@@ -8,6 +8,7 @@ require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/AutorizacaoAcessoController.php";
 require_once __DIR__ . "/../../model/dao/Conexao.php";
 require_once __DIR__ . "/../../service/Erro.php";
+require_once __DIR__ . "/../../service/Configuracao.php";
 
 PermissaoController::exigirPerfil([
     "Morador"
@@ -166,7 +167,7 @@ function urlFotoVisitante(
     if (
         str_starts_with(
             $foto,
-            "/koinon-service/"
+            Configuracao::url()
         )
     ) {
 
@@ -200,7 +201,7 @@ function urlFotoVisitante(
     }
 
 
-    return "/koinon-service/"
+    return Configuracao::url()
         . ltrim(
             $foto,
             "/"

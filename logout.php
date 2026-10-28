@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/service/Configuracao.php";
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
@@ -23,6 +25,6 @@ if (ini_get("session.use_cookies")) {
 
 session_destroy();
 
-header("Location: /koinon-service/");
+header("Location: " . Configuracao::url(""));
 
 exit;

@@ -28,10 +28,13 @@ class Conexao
          * ==========================================================
          */
 
-        $host = "127.0.0.1";
-        $banco = "koinon_service";
-        $usuario = "root";
-        $senha = "";
+        [
+            "host" => $host,
+            "porta" => $porta,
+            "banco" => $banco,
+            "usuario" => $usuario,
+            "senha" => $senha,
+        ] = Configuracao::banco();
 
         /*
          * ==========================================================
@@ -44,6 +47,7 @@ class Conexao
             $dsn =
                 "mysql:"
                 . "host=" . $host
+                . ";port=" . $porta
                 . ";dbname=" . $banco
                 . ";charset=utf8mb4";
 

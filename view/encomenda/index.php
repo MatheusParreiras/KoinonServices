@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/EncomendaController.php";
+require_once __DIR__ . "/../../service/Configuracao.php";
 
 PermissaoController::exigirPortaria();
 
@@ -50,7 +51,7 @@ $encomendas = $controller->listar();
     <div class="container">
 
         <a
-            href="/koinon-service/view/dashboard.php"
+            href="<?= htmlspecialchars(Configuracao::url("view/dashboard.php")) ?>"
             class="navbar-brand fw-bold text-decoration-none"
         >
             🏢 Koinon Services
@@ -174,7 +175,7 @@ $encomendas = $controller->listar();
         <div class="d-flex gap-2">
 
             <a
-                href="/koinon-service/view/dashboard.php"
+                href="<?= htmlspecialchars(Configuracao::url("view/dashboard.php")) ?>"
                 class="btn btn-outline-secondary"
             >
                 ← Dashboard
@@ -346,7 +347,7 @@ $encomendas = $controller->listar();
 
                                     $foto = str_replace(
                                         "../../",
-                                        "/koinon-service/",
+                                        Configuracao::url(),
                                         $foto
                                     );
 
@@ -362,7 +363,7 @@ $encomendas = $controller->listar();
                                 ) {
 
                                     $foto =
-                                        "/koinon-service/" .
+                                        Configuracao::url() .
                                         ltrim(
                                             $foto,
                                             "/"

@@ -64,8 +64,7 @@ class PasswordLinkService
 
         $protocolo = (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off") ? "https://" : "http://";
         $host = $_SERVER["HTTP_HOST"] ?? "localhost";
-        $basePath = rtrim(str_replace("\\", "/", dirname(dirname($_SERVER["SCRIPT_NAME"] ?? "/koinon-service/view/esqueci_senha.php"))), "/");
-        return $protocolo . $host . $basePath . "/view/redefinir_senha.php?token=" . urlencode($token);
+        return $protocolo . $host . Configuracao::url("view/redefinir_senha.php") . "?token=" . urlencode($token);
     }
 
     /*

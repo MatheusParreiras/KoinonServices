@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/EncomendaController.php";
+require_once __DIR__ . "/../../service/Configuracao.php";
 
 PermissaoController::exigirPortaria();
 
@@ -425,10 +426,10 @@ function urlFotoEncomenda(
             "assets/"
         )
     ) {
-        return "/koinon-service/" . $foto;
+        return Configuracao::url() . $foto;
     }
 
-    return "/koinon-service/" . $foto;
+    return Configuracao::url() . $foto;
 }
 
 $fotoAtualUrl =
@@ -487,7 +488,7 @@ $fotoAtualUrl =
             </span>
 
             <a
-                href="/koinon-service/logout.php"
+                href="<?= htmlspecialchars(Configuracao::url("logout.php")) ?>"
                 class="btn btn-outline-light btn-sm"
             >
                 Sair

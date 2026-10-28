@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/UsuarioController.php";
+require_once __DIR__ . "/../../service/Configuracao.php";
 
 PermissaoController::exigirAdministrador();
 
@@ -77,7 +78,7 @@ if ($filtroLgpd === "aceito" || $filtroLgpd === "pendente") {
             </a>
 
             <a
-                href="/koinon-service/view/logout.php"
+                href="<?= htmlspecialchars(Configuracao::url("view/logout.php")) ?>"
                 class="btn btn-outline-danger"
             >
                 Sair

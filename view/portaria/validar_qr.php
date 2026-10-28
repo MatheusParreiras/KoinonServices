@@ -10,6 +10,7 @@ require_once __DIR__ . "/../../controller/VisitanteController.php";
 require_once __DIR__ . "/../../model/dto/RegistroAcessoDTO.php";
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../service/Erro.php";
+require_once __DIR__ . "/../../service/Configuracao.php";
 
 PermissaoController::exigirPortaria();
 
@@ -116,7 +117,7 @@ function urlFotoVisitante(
     if (
         str_starts_with(
             $foto,
-            "/koinon-service/"
+            Configuracao::url()
         )
     ) {
 
@@ -138,7 +139,7 @@ function urlFotoVisitante(
     }
 
 
-    return "/koinon-service/"
+    return Configuracao::url()
         . ltrim($foto, "/");
 }
 

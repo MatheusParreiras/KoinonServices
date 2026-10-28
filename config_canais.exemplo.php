@@ -15,6 +15,21 @@ return [
     /* Endereço público do sistema, usado nos links de senha. Obrigatório fora do modo demonstração. */
     "base_url" => "https://seu-dominio.com.br/koinon-service",
 
+    /*
+     * Pasta do sistema no servidor ("/koinon-service" no XAMPP, "/" na raiz
+     * do domínio). Vazio: deduzido automaticamente.
+     */
+    "base_path" => "",
+
+    /* Banco de dados. Os valores abaixo são os do XAMPP. */
+    "banco" => [
+        "host" => "127.0.0.1",
+        "porta" => 3306,
+        "nome" => "koinon_service",
+        "usuario" => "root",
+        "senha" => "",
+    ],
+
     "email" => [
         "provedor" => "mail", // "mail" (função mail() do PHP) ou "resend"
         "remetente_nome" => "Koinon Services",

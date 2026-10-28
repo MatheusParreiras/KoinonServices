@@ -7,6 +7,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/AutorizacaoAcessoController.php";
 require_once __DIR__ . "/../../service/Erro.php";
+require_once __DIR__ . "/../../service/Configuracao.php";
 
 PermissaoController::exigirPerfil([
     "Morador"
@@ -19,7 +20,7 @@ $id = (int) ($_GET["id"] ?? 0);
 if ($id <= 0) {
 
     header(
-        "Location: /koinon-service/view/morador/autorizacoes.php"
+        "Location: " . Configuracao::url("view/morador/autorizacoes.php")
     );
 
     exit;
@@ -240,7 +241,7 @@ if (
 
 
                         <a
-                            href="/koinon-service/view/morador/autorizacoes.php"
+                            href="<?= htmlspecialchars(Configuracao::url("view/morador/autorizacoes.php")) ?>"
                             class="btn btn-primary"
                         >
 
@@ -498,7 +499,7 @@ function formatarDataHora(
 
 
         <a
-            href="/koinon-service/view/morador/autorizacoes.php"
+            href="<?= htmlspecialchars(Configuracao::url("view/morador/autorizacoes.php")) ?>"
             class="btn btn-outline-light btn-sm"
         >
 
@@ -789,7 +790,7 @@ function formatarDataHora(
 
 
                         <a
-                            href="/koinon-service/view/morador/autorizacoes.php"
+                            href="<?= htmlspecialchars(Configuracao::url("view/morador/autorizacoes.php")) ?>"
                             class="btn btn-outline-secondary"
                         >
 
