@@ -6,6 +6,9 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     Sessao::iniciar();
 }
 
+require_once __DIR__ . "/service/Csrf.php";
+Csrf::proteger();
+
 $usuarioLogado = !empty($_SESSION["usuario_id"]);
 $nomeUsuario = $_SESSION["usuario_nome"] ?? null;
 $perfilUsuario = $_SESSION["usuario_perfil"] ?? null;

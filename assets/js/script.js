@@ -380,7 +380,7 @@
             await fetch(PROJECT_ROOT + 'view/notificacao_marcar_lida.php', {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': readCsrfCookie() },
                 body: 'id=' + encodeURIComponent(id)
             });
         } catch (e) {}
@@ -390,7 +390,8 @@
         try {
             await fetch(PROJECT_ROOT + 'view/notificacao_marcar_todas_lidas.php', {
                 method: 'POST',
-                credentials: 'same-origin'
+                credentials: 'same-origin',
+                headers: { 'X-CSRF-Token': readCsrfCookie() }
             });
         } catch (e) {}
         await loadNotificationPanel();

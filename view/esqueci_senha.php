@@ -6,6 +6,9 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     Sessao::iniciar();
 }
 
+require_once __DIR__ . "/../service/Csrf.php";
+Csrf::proteger();
+
 require_once __DIR__ . "/../model/dao/Conexao.php";
 require_once __DIR__ . "/../service/PasswordLinkService.php";
 require_once __DIR__ . "/../service/LimiteTentativas.php";
