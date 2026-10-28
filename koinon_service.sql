@@ -37,7 +37,7 @@ CREATE TABLE `autorizacao_acesso` (
   `qr_code` varchar(255) DEFAULT NULL,
   `status` varchar(20) DEFAULT 'Ativo' CHECK (`status` in ('Ativo','Expirado','Cancelado','Utilizado')),
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `autorizacao_acesso`
@@ -197,7 +197,7 @@ CREATE TABLE `local_reserva` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `fotos` longtext DEFAULT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `local_reserva`
@@ -293,7 +293,7 @@ CREATE TABLE `registro_acesso` (
   `foto_evento_url` text DEFAULT NULL,
   `observacao` text DEFAULT NULL,
   `autorizado_por_usuario_id` bigint(20) DEFAULT NULL
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `registro_acesso`
@@ -317,7 +317,7 @@ CREATE TABLE `reserva` (
   `status` varchar(20) DEFAULT 'Pendente' CHECK (`status` in ('Pendente','Aguardando_Pagamento','Confirmada','Cancelada','Concluida')),
   `valor_taxa` decimal(10,2) NOT NULL DEFAULT 0.00,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
-) ;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `reserva`

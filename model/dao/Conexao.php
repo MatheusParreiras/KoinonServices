@@ -8,7 +8,7 @@ class Conexao
 
     // Mude este valor sempre que a estrutura complementar mudar,
     // para que as sessões em andamento refaçam a verificação.
-    private const VERSAO_ESTRUTURA = "2026.10-v4";
+    private const VERSAO_ESTRUTURA = "2026.10-v5";
 
     public static function conectar(): PDO
     {
@@ -82,6 +82,7 @@ class Conexao
                 // As verificações rodam uma única vez por sessão (e não a cada requisição),
                 // para não pesar o sistema nem repetir ALTER TABLE desnecessários.
                 if (!self::estruturaJaVerificada()) {
+                    self::garantirCollation(self::$conexao);
                     self::garantirEstruturaTcc(self::$conexao);
                     self::garantirComprovantes(self::$conexao);
                     self::garantirPagamentos(self::$conexao);
@@ -176,6 +177,35 @@ class Conexao
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             $_SESSION["_koinon_estrutura"] = self::VERSAO_ESTRUTURA;
+        }
+    }
+
+    /*
+     * Todas as tabelas usam utf8mb4_general_ci. Tabelas importadas sem
+     * collation herdam o padrão do servidor (utf8mb4_uca1400_ai_ci no
+     * MariaDB 11.x, utf8mb4_0900_ai_ci no MySQL 8), e comparar texto entre
+     * elas falha com "Illegal mix of collations". Converte as que ficaram
+     * diferentes.
+     */
+    private static function garantirCollation(PDO $pdo): void
+    {
+        try {
+            $tabelas = $pdo->query(
+                "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_TYPE = 'BASE TABLE'
+                   AND TABLE_COLLATION LIKE 'utf8mb4%'
+                   AND TABLE_COLLATION <> 'utf8mb4_general_ci'"
+            )->fetchAll(PDO::FETCH_COLUMN);
+
+            foreach ($tabelas as $tabela) {
+                $pdo->exec(
+                    "ALTER TABLE `" . str_replace("`", "``", $tabela) . "`
+                     CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
+                );
+            }
+        } catch (Throwable $e) {
+            error_log("[Koinon] Não foi possível ajustar a collation: " . $e->getMessage());
         }
     }
 
