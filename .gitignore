@@ -1,0 +1,9 @@
+# Configuração local com chaves de API (modelo: config_canais.exemplo.php)
+/config_canais.php
+
+# Dados gerados em execução
+/storage/auditoria/*.log
+/storage/password_resets/*.json
+/uploads/**/*
+!/uploads/**/
+!/uploads/**/.gitkeep
