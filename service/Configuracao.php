@@ -33,9 +33,12 @@ class Configuracao
 
         if ($configurado === "") {
             $projeto = realpath(__DIR__ . "/..");
-            $raiz = realpath((string) ($_SERVER["DOCUMENT_ROOT"] ?? ""));
+            $documentRoot = (string) ($_SERVER["DOCUMENT_ROOT"] ?? "");
+            // realpath("") devolveria a pasta atual: sem DOCUMENT_ROOT (CLI), vale o padrão.
+            $raiz = $documentRoot !== "" ? realpath($documentRoot) : false;
 
-            $configurado = ($projeto !== false && $raiz !== false && $raiz !== "" && str_starts_with($projeto, $raiz))
+            $configurado = ($projeto !== false && $raiz !== false
+                && ($projeto === $raiz || str_starts_with($projeto, rtrim($raiz, "/\\") . DIRECTORY_SEPARATOR)))
                 ? str_replace("\\", "/", substr($projeto, strlen($raiz)))
                 : "/koinon-service";
         }
