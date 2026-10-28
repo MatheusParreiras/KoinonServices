@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/Conexao.php";
 require_once __DIR__ . "/../dto/VeiculoDTO.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 class VeiculoDAO
 {
@@ -148,7 +149,7 @@ class VeiculoDAO
         } catch (PDOException $e) {
             $this->ultimoErro = $e->getCode() === "23000"
                 ? "Essa placa já está cadastrada no sistema."
-                : $e->getMessage();
+                : Erro::mensagem($e);
             return false;
         }
     }

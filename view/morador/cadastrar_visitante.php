@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../model/dao/Conexao.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPerfil([
     "Morador"
@@ -534,7 +535,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 $mensagem =
                     "Erro ao cadastrar visitante: "
-                    . $e->getMessage();
+                    . Erro::mensagem($e);
 
                 $tipoMensagem = "danger";
             }

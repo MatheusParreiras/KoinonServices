@@ -3,6 +3,7 @@
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/LocalReservaController.php";
 require_once __DIR__ . "/../../model/dto/LocalReservaDTO.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirGestao();
 
@@ -733,7 +734,7 @@ if (
             $erro =
                 "Erro ao atualizar o local: "
                 .
-                $e->getMessage();
+                Erro::mensagem($e);
         }
     }
 }

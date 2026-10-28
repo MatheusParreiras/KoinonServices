@@ -9,6 +9,7 @@ require_once __DIR__ . "/../../controller/RegistroAcessoController.php";
 require_once __DIR__ . "/../../controller/VisitanteController.php";
 require_once __DIR__ . "/../../model/dto/RegistroAcessoDTO.php";
 require_once __DIR__ . "/../../controller/PermissaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPortaria();
 
@@ -414,7 +415,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $mensagem =
                 "Erro ao validar o QR Code: "
-                . $e->getMessage();
+                . Erro::mensagem($e);
 
             $tipoMensagem =
                 "danger";

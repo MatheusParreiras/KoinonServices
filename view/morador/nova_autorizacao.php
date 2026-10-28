@@ -7,6 +7,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/AutorizacaoAcessoController.php";
 require_once __DIR__ . "/../../model/dao/Conexao.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPerfil([
     "Morador"
@@ -439,7 +440,7 @@ if (
 
             $mensagem =
                 "Erro ao cadastrar autorização: "
-                . $e->getMessage();
+                . Erro::mensagem($e);
 
             $tipoMensagem =
                 "danger";

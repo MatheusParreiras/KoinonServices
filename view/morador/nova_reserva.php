@@ -4,6 +4,7 @@ require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/MoradorController.php";
 require_once __DIR__ . "/../../controller/LocalReservaController.php";
 require_once __DIR__ . "/../../model/dao/MoradorDAO.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirMorador();
 
@@ -192,7 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $erro =
                 "Erro ao realizar a reserva: "
-                . $e->getMessage();
+                . Erro::mensagem($e);
         }
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPortaria();
 
@@ -143,13 +144,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $erro =
             "Erro no banco de dados: " .
-            $e->getMessage();
+            Erro::mensagem($e);
 
     } catch (Exception $e) {
 
         $erro =
             "Erro: " .
-            $e->getMessage();
+            Erro::mensagem($e);
     }
 }
 

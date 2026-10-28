@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirGestao();
 
@@ -279,7 +280,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         $erro =
-            $e->getMessage();
+            Erro::mensagem($e);
     }
 }
 

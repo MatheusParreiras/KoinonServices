@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirGestao();
 
@@ -65,11 +66,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     } catch (PDOException $e) {
 
-        $erro = "Erro no banco de dados: " . $e->getMessage();
+        $erro = "Erro no banco de dados: " . Erro::mensagem($e);
 
     } catch (Exception $e) {
 
-        $erro = "Erro: " . $e->getMessage();
+        $erro = "Erro: " . Erro::mensagem($e);
 
     }
 }

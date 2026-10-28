@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirGestao();
 
@@ -216,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                     $mensagem =
                         "Erro ao cadastrar ocorrência: "
-                        . $e->getMessage();
+                        . Erro::mensagem($e);
                 }
             }
         }

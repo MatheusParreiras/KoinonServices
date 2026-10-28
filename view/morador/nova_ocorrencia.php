@@ -7,6 +7,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/MoradorController.php";
 require_once __DIR__ . "/../../model/dto/OcorrenciaDTO.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPerfil([
     "Morador"
@@ -252,7 +253,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 $erro =
                     "Erro ao registrar ocorrência: "
-                    . $e->getMessage();
+                    . Erro::mensagem($e);
             }
         }
     }

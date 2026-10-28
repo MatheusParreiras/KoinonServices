@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPortaria();
 
@@ -134,7 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } catch (Exception $e) {
 
             $mensagem = "Erro ao registrar o acesso: "
-                . $e->getMessage();
+                . Erro::mensagem($e);
 
             $tipoMensagem = "danger";
         }

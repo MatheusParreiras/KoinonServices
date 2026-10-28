@@ -4,6 +4,7 @@
 require_once __DIR__ . "/../../controller/UsuarioController.php";
 require_once __DIR__ . "/../../controller/UnidadeController.php";
 require_once __DIR__ . "/../../controller/PermissaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirAdministrador();
 
@@ -145,14 +146,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $erro =
                 "Erro ao atualizar usuário: " .
-                $e->getMessage();
+                Erro::mensagem($e);
         }
 
     } catch (Exception $e) {
 
         $erro =
             "Erro: " .
-            $e->getMessage();
+            Erro::mensagem($e);
     }
 }
 

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/Conexao.php";
 require_once __DIR__ . "/../dto/ReservaDTO.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 class ReservaDAO
 {
@@ -290,7 +291,7 @@ class ReservaDAO
 
             $this->ultimoErro =
                 "Não foi possível cadastrar a reserva: "
-                . $e->getMessage();
+                . Erro::mensagem($e);
 
             return false;
         }
@@ -786,7 +787,7 @@ class ReservaDAO
         } catch (Throwable $e) {
             $this->ultimoErro =
                 "Não foi possível atualizar a reserva: "
-                . $e->getMessage();
+                . Erro::mensagem($e);
 
             return false;
         }
@@ -886,7 +887,7 @@ class ReservaDAO
                 if ($this->conexao->inTransaction()) {
                     $this->conexao->rollBack();
                 }
-                $this->ultimoErro = "Não foi possível aguardar o pagamento: " . $e->getMessage();
+                $this->ultimoErro = "Não foi possível aguardar o pagamento: " . Erro::mensagem($e);
                 return false;
             }
         }
@@ -1024,7 +1025,7 @@ class ReservaDAO
         } catch (Throwable $e) {
             $this->ultimoErro =
                 "Não foi possível atualizar o status da reserva: "
-                . $e->getMessage();
+                . Erro::mensagem($e);
 
             return false;
         }

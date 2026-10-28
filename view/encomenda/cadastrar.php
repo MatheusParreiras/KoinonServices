@@ -7,6 +7,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/EncomendaController.php";
 require_once __DIR__ . "/../../model/dto/EncomendaDTO.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPortaria();
 
@@ -296,7 +297,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ) {
 
         $erro =
-            $e->getMessage();
+            Erro::mensagem($e);
     }
 }
 

@@ -6,6 +6,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/PublicacaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPerfil([
     "Morador"
@@ -98,7 +99,7 @@ try {
 
 } catch (Throwable $e) {
 
-    $erro = $e->getMessage();
+    $erro = Erro::mensagem($e);
 }
 
 ?>

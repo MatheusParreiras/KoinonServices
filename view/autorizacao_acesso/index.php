@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
+require_once __DIR__ . "/../../service/Erro.php";
 
 PermissaoController::exigirPortaria();
 
@@ -74,7 +75,7 @@ try {
     $autorizacoes = [];
 
     $erro =
-        $e->getMessage();
+        Erro::mensagem($e);
 }
 
 ?>
