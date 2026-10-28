@@ -7,3 +7,8 @@
 /uploads/**/*
 !/uploads/**/
 !/uploads/**/.gitkeep
+/assets/documentos/*
+!/assets/documentos/.gitkeep
+/assets/img/*/*
+!/assets/img/*/.gitkeep
+/assets/img/achado_perdido_*
