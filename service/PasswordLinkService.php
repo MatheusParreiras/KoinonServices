@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/Configuracao.php";
+
 class PasswordLinkService
 {
     private string $storageDir;
@@ -13,10 +15,7 @@ class PasswordLinkService
             @mkdir($this->storageDir, 0700, true);
         }
 
-        $configPath = __DIR__ . "/../config_canais.php";
-        $this->config = is_file($configPath)
-            ? (array) require $configPath
-            : [];
+        $this->config = Configuracao::todas();
     }
 
     public function criarToken(int $usuarioId, int $minutos = 30): array
@@ -42,8 +41,22 @@ class PasswordLinkService
         ];
     }
 
+    /*
+     * Sem base_url, o endereço viria do cabeçalho Host da requisição,
+     * que quem pede o link controla: o e-mail levaria a vítima para
+     * outro site com o token. Só é aceito no modo demonstração.
+     */
+    private function exigirEnderecoDosLinks(): void
+    {
+        if (trim((string)($this->config["base_url"] ?? "")) === "" && !Configuracao::modoDemonstracao()) {
+            throw new RuntimeException("Configure base_url em config_canais.php para enviar links de senha.");
+        }
+    }
+
     public function url(string $token): string
     {
+        $this->exigirEnderecoDosLinks();
+
         $baseUrl = trim((string)($this->config["base_url"] ?? ""));
         if ($baseUrl !== "") {
             return rtrim($baseUrl, "/") . "/view/redefinir_senha.php?token=" . urlencode($token);
@@ -53,6 +66,60 @@ class PasswordLinkService
         $host = $_SERVER["HTTP_HOST"] ?? "localhost";
         $basePath = rtrim(str_replace("\\", "/", dirname(dirname($_SERVER["SCRIPT_NAME"] ?? "/koinon-service/view/esqueci_senha.php"))), "/");
         return $protocolo . $host . $basePath . "/view/redefinir_senha.php?token=" . urlencode($token);
+    }
+
+    /*
+     * Cria um link de definição de senha e o envia pelo canal escolhido.
+     *
+     * O link só chega ao dono da conta (e-mail ou WhatsApp cadastrados).
+     * Ele nunca é devolvido para a tela de quem pediu, exceto no modo
+     * demonstração ("link_demo" / "whatsapp_demo"), quando o envio falha.
+     *
+     * @param array{id: int|string, nome: string, email: ?string, telefone: ?string} $usuario
+     * @return array{enviado: bool, link_demo: ?string, whatsapp_demo: ?string}
+     */
+    public function enviarLinkSenha(array $usuario, string $canal): array
+    {
+        $resultado = ["enviado" => false, "link_demo" => null, "whatsapp_demo" => null];
+
+        try {
+            $this->exigirEnderecoDosLinks();
+            $link = $this->url($this->criarToken((int) $usuario["id"])["token"]);
+        } catch (RuntimeException $e) {
+            error_log("[Koinon] " . $e->getMessage());
+            return $resultado;
+        }
+
+        $demo = Configuracao::modoDemonstracao();
+
+        if ($canal === "whatsapp") {
+            $envio = $this->enviarWhatsApp(
+                (string) ($usuario["telefone"] ?? ""),
+                (string) $usuario["nome"],
+                $link
+            );
+            $resultado["enviado"] = $envio["enviado"];
+
+            // O click-to-chat abre o WhatsApp de quem pediu com o link no texto.
+            if (!$envio["enviado"] && $demo) {
+                $resultado["whatsapp_demo"] = $envio["url"];
+                $resultado["link_demo"] = $link;
+            }
+
+            return $resultado;
+        }
+
+        $resultado["enviado"] = $this->enviarEmail(
+            (string) ($usuario["email"] ?? ""),
+            (string) $usuario["nome"],
+            $link
+        );
+
+        if (!$resultado["enviado"] && $demo) {
+            $resultado["link_demo"] = $link;
+        }
+
+        return $resultado;
     }
 
     public function enviarEmail(string $destinatario, string $nome, string $link): bool

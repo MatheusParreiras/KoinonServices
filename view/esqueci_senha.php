@@ -37,37 +37,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->execute();
             $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if (!$usuario || (int)$usuario["ativo"] !== 1) {
-                $erro = "Não foi possível validar o CPF informado.";
-            } else {
-                $service = new PasswordLinkService();
-                $token = $service->criarToken((int)$usuario["id"]);
-                $link = $service->url($token["token"]);
+            /*
+             * A resposta é a mesma exista ou não o CPF, e o link só vai
+             * para o canal cadastrado: quem sabe apenas o CPF de alguém
+             * não descobre se ele tem conta nem recebe o link.
+             */
+            $sucesso = $canal === "email"
+                ? "Se o CPF estiver cadastrado, enviamos o link seguro para o e-mail cadastrado."
+                : "Se o CPF estiver cadastrado, enviamos o link seguro para o WhatsApp cadastrado.";
 
-                if ($canal === "email") {
-                    if ($service->enviarEmail($usuario["email"], $usuario["nome"], $link)) {
-                        $sucesso = "O link seguro de definição/redefinição de senha foi enviado para o e-mail cadastrado.";
-                    } else {
-                        $sucesso = "A solicitação foi criada, mas o servidor local não conseguiu enviar o e-mail. Para o teste do TCC, o link está disponível abaixo.";
-                        $linkLocal = $link;
-                    }
-                } else {
-                    $resultado = $service->enviarWhatsApp(
-                        (string)($usuario["telefone"] ?? ""),
-                        (string)$usuario["nome"],
-                        $link
-                    );
+            if ($usuario && (int)$usuario["ativo"] === 1) {
+                $envio = (new PasswordLinkService())->enviarLinkSenha($usuario, $canal);
 
-                    if ($resultado["enviado"]) {
-                        $sucesso = "O link seguro foi enviado para o WhatsApp cadastrado.";
-                    } elseif (!empty($resultado["url"])) {
-                        $sucesso = "O link foi preparado para envio pelo WhatsApp. Clique em 'Abrir WhatsApp' para concluir o envio.";
-                        $linkWhatsApp = $resultado["url"];
-                        $linkLocal = $link;
-                    } else {
-                        $erro = "Este usuário não possui telefone/WhatsApp cadastrado ou a API do WhatsApp não está configurada.";
-                        $linkLocal = $link;
-                    }
+                // Modo demonstração: o envio falhou e o link aparece abaixo.
+                if ($envio["link_demo"] !== null) {
+                    $sucesso = "Modo demonstração: o envio não foi concluído, então o link está disponível abaixo.";
+                    $linkLocal = $envio["link_demo"];
+                    $linkWhatsApp = $envio["whatsapp_demo"];
                 }
             }
         } catch (Throwable $e) {
@@ -102,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <?php if ($linkLocal): ?>
                 <div class="alert alert-warning">
-                    <strong>Link para teste do TCC:</strong>
+                    <strong>Link (modo demonstração):</strong>
                     <div class="small text-break mt-2"><?= htmlspecialchars($linkLocal) ?></div>
                     <a href="<?= htmlspecialchars($linkLocal) ?>" class="btn btn-sm btn-warning mt-3">Abrir definição de senha</a>
                 </div>

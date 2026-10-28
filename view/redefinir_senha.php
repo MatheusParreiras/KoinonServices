@@ -61,10 +61,10 @@ if (
     $confirmacao =
         $_POST["confirmacao"] ?? "";
 
-    if (strlen($senha) < 6) {
+    if (strlen($senha) < 8) {
 
         $erro =
-            "A nova senha deve possuir pelo menos 6 caracteres.";
+            "A nova senha deve possuir pelo menos 8 caracteres.";
 
     } elseif ($senha !== $confirmacao) {
 
@@ -179,7 +179,7 @@ if (
                             class="form-control"
                             id="senha"
                             name="senha"
-                            minlength="6"
+                            minlength="8"
                             required
                             autocomplete="new-password"
                         >
@@ -194,7 +194,7 @@ if (
                             class="form-control"
                             id="confirmacao"
                             name="confirmacao"
-                            minlength="6"
+                            minlength="8"
                             required
                             autocomplete="new-password"
                         >

@@ -5,6 +5,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 require_once __DIR__ . "/../model/dao/Conexao.php";
+require_once __DIR__ . "/../service/PasswordLinkService.php";
 
 $tipoAcesso = strtolower(trim($_GET["tipo"] ?? $_POST["tipo"] ?? "morador"));
 if (!in_array($tipoAcesso, ["morador", "funcionario"], true)) {
@@ -12,6 +13,8 @@ if (!in_array($tipoAcesso, ["morador", "funcionario"], true)) {
 }
 
 $erro = null;
+$aviso = null;
+$linkDemo = null;
 $identificadorInformado = trim($_POST["identificador"] ?? $_POST["cpf"] ?? "");
 $primeiroAcesso = false;
 
@@ -67,12 +70,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $senhaDefinida = (int) ($usuario["senha_definida"] ?? 1) === 1;
                     $primeiroAcesso = !$senhaDefinida;
 
-                    if ($senhaDefinida && $senha === "") {
+                    if ($primeiroAcesso) {
+                        /*
+                         * Primeiro acesso não entra sem senha: quem sabe o CPF
+                         * ou o e-mail de alguém tomaria a conta. A senha é
+                         * criada pelo link enviado ao e-mail (ou WhatsApp)
+                         * cadastrado; depois o login é o normal.
+                         */
+                        $canal = !empty($usuario["email"]) ? "email" : "whatsapp";
+                        $envio = (new PasswordLinkService())->enviarLinkSenha($usuario, $canal);
+
+                        if ($envio["link_demo"] !== null) {
+                            $aviso = "Primeiro acesso (modo demonstração): o envio não foi concluído, então o link para criar a senha está abaixo.";
+                            $linkDemo = $envio["link_demo"];
+                        } elseif ($envio["enviado"]) {
+                            $aviso = $canal === "email"
+                                ? "Primeiro acesso: enviamos para o e-mail cadastrado um link para você criar sua senha."
+                                : "Primeiro acesso: enviamos para o WhatsApp cadastrado um link para você criar sua senha.";
+                        } else {
+                            $erro = "Primeiro acesso: não foi possível enviar o link para criar sua senha. Tente novamente mais tarde ou procure a administração do condomínio.";
+                        }
+                    } elseif ($senha === "") {
                         $erro = "Informe sua senha.";
-                    } elseif (
-                        $senhaDefinida
-                        && !password_verify($senha, $usuario["senha_hash"])
-                    ) {
+                    } elseif (!password_verify($senha, $usuario["senha_hash"])) {
                         $erro = "CPF ou senha inválidos.";
                     } else {
                         session_regenerate_id(true);
@@ -88,11 +108,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                         if (!$usuario["termo_lgpd"]) {
                             header("Location: lgpd.php");
-                            exit;
-                        }
-
-                        if ($primeiroAcesso) {
-                            header("Location: definir_senha.php");
                             exit;
                         }
 
@@ -423,6 +438,19 @@ $descricaoLogin = $tipoAcesso === "morador"
                     <?php endif; ?>
 
 
+                    <?php if ($aviso !== null): ?>
+
+                        <div class="alert alert-info" role="status">
+                            <?= htmlspecialchars($aviso); ?>
+                            <?php if ($linkDemo !== null): ?>
+                                <div class="small text-break mt-2"><?= htmlspecialchars($linkDemo) ?></div>
+                                <a href="<?= htmlspecialchars($linkDemo) ?>" class="btn btn-sm btn-primary mt-3">Criar minha senha</a>
+                            <?php endif; ?>
+                        </div>
+
+                    <?php endif; ?>
+
+
                     <!-- ========================================= -->
                     <!-- FORMULÁRIO -->
                     <!-- ========================================= -->
@@ -460,7 +488,7 @@ $descricaoLogin = $tipoAcesso === "morador"
 </div>
 
 <div class="mb-4">
-    <label for="senha" class="form-label fw-semibold">Senha <span class="text-muted small">(opcional no primeiro acesso)</span></label>
+    <label for="senha" class="form-label fw-semibold">Senha <span class="text-muted small">(em branco no primeiro acesso)</span></label>
     <input
         type="password"
         class="form-control"
@@ -470,7 +498,7 @@ $descricaoLogin = $tipoAcesso === "morador"
         autocomplete="current-password"
         
     >
-    <div class="form-text">No primeiro acesso, deixe a senha em branco. Após aceitar a LGPD, você criará sua senha. Nos próximos acessos, ela será obrigatória.</div>
+    <div class="form-text">No primeiro acesso, deixe a senha em branco: enviaremos um link para o seu e-mail (ou WhatsApp) cadastrado para você criar sua senha.</div>
 </div>
 
 

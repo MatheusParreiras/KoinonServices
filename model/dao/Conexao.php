@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../../service/Cpf.php";
+require_once __DIR__ . "/../../service/Configuracao.php";
 
 class Conexao
 {
@@ -90,9 +91,12 @@ class Conexao
 
             } catch (PDOException $e) {
 
+                error_log("[Koinon] Falha ao conectar ao banco: " . $e->getMessage());
+
+                http_response_code(503);
                 die(
-                    "Erro ao conectar ao banco de dados: "
-                    . $e->getMessage()
+                    "Erro ao conectar ao banco de dados."
+                    . (Configuracao::modoDemonstracao() ? " " . $e->getMessage() : "")
                 );
             }
         }
@@ -298,8 +302,17 @@ class Conexao
      * cada acesso caso o e-mail admin@koinon.com não existisse, e por isso
      * "voltava" para a lista toda vez que era apagado.
      */
+    /*
+     * Só no modo demonstração. A conta criada aqui tem CPF e e-mail
+     * conhecidos por qualquer um que leia o código; fora da demonstração
+     * o primeiro administrador é criado com bin/criar_admin.php.
+     */
     private static function garantirAdministradorInicial(PDO $pdo): void
     {
+        if (!Configuracao::modoDemonstracao()) {
+            return;
+        }
+
         $existe = (int) $pdo->query(
             "SELECT COUNT(*) FROM usuario WHERE perfil = 'Administrador'"
         )->fetchColumn();
