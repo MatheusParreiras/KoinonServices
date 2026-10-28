@@ -1,0 +1,1394 @@
+
+:root{--k-bg:#f3f6fb;--k-surface:#fff;--k-surface-2:#f8fafc;--k-text:#172033;--k-muted:#69758a;--k-border:#e3e8f0;--k-primary:#4f46e5;--k-primary-2:#7c3aed;--k-shadow:0 14px 40px rgba(15,23,42,.08);--k-radius:18px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--k-bg);color:var(--k-text);transition:background .25s,color .25s;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{transition:.2s}
+.card{border:1px solid var(--k-border)!important;border-radius:var(--k-radius)!important;background:var(--k-surface)!important;box-shadow:var(--k-shadow)!important;overflow:hidden}.card-header{background:var(--k-surface-2)!important;color:var(--k-text)!important;border-bottom:1px solid var(--k-border)!important}
+.table{--bs-table-bg:var(--k-surface);--bs-table-color:var(--k-text);--bs-table-border-color:var(--k-border);color:var(--k-text)}.table-hover>tbody>tr:hover>*{--bs-table-accent-bg:rgba(79,70,229,.045)}
+.form-control,.form-select,.input-group-text{background:var(--k-surface)!important;color:var(--k-text)!important;border-color:var(--k-border)!important;border-radius:12px!important}.form-control::placeholder{color:var(--k-muted)!important}.form-control:focus,.form-select:focus{border-color:var(--k-primary)!important;box-shadow:0 0 0 .22rem rgba(79,70,229,.13)!important}.form-label{color:var(--k-text)}
+.btn{border-radius:12px;font-weight:650;transition:transform .18s,box-shadow .18s,filter .18s}.btn:hover{transform:translateY(-1px)}.btn-primary{background:linear-gradient(135deg,var(--k-primary),var(--k-primary-2));border-color:transparent;box-shadow:0 8px 20px rgba(79,70,229,.2)}
+.alert{border-radius:14px;border:1px solid var(--k-border)}.navbar{background:rgba(255,255,255,.88)!important;backdrop-filter:blur(14px);border-bottom:1px solid var(--k-border);box-shadow:0 8px 30px rgba(15,23,42,.05)}
+.koinon-page-title{font-weight:800;letter-spacing:-.025em}.koinon-subtitle,.text-muted{color:var(--k-muted)!important}.koinon-section{margin-bottom:28px}.koinon-hero{border-radius:24px;background:linear-gradient(135deg,#4338ca,#7c3aed 55%,#2563eb);box-shadow:0 22px 55px rgba(79,70,229,.2);position:relative;overflow:hidden}.koinon-hero:after{content:"";position:absolute;width:260px;height:260px;border-radius:50%;right:-90px;top:-120px;background:rgba(255,255,255,.1)}
+.koinon-stat,.koinon-action-card{border:1px solid var(--k-border);background:var(--k-surface);box-shadow:var(--k-shadow);border-radius:18px}.koinon-stat{padding:22px;height:100%}.koinon-stat-icon,.koinon-action-icon{width:48px;height:48px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:rgba(79,70,229,.1);font-size:1.3rem}.koinon-action-card{display:block;text-decoration:none;color:inherit;padding:20px;height:100%;transition:.2s}.koinon-action-card:hover{color:inherit;transform:translateY(-4px);border-color:rgba(79,70,229,.35);box-shadow:0 20px 42px rgba(15,23,42,.12)}
+.koinon-logo{height:42px;width:auto}.koinon-logo-small{height:34px}.koinon-dashboard-back{margin:0 0 18px}.koinon-dashboard-back .btn{background:var(--k-surface);color:var(--k-text);border-color:var(--k-border)}.koinon-feature{padding:26px;border:1px solid var(--k-border);background:var(--k-surface);border-radius:20px;box-shadow:var(--k-shadow)}.koinon-bar{height:12px;background:var(--k-border);border-radius:999px;overflow:hidden}.koinon-bar>span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--k-primary),var(--k-primary-2))}.koinon-pill{border-radius:999px;padding:.4rem .7rem;font-size:.78rem;font-weight:700}
+
+
+.sidebar-card,.module-card{border:1px solid var(--k-border)!important;border-radius:18px!important;background:var(--k-surface)!important;box-shadow:var(--k-shadow)!important}.module-card{transition:.2s}.module-card:hover{transform:translateY(-4px);box-shadow:0 20px 42px rgba(15,23,42,.12)!important}.module-icon{background:rgba(79,70,229,.1)!important;color:var(--k-text)!important}.welcome-card{border-radius:22px!important;background:linear-gradient(135deg,#4338ca,#7c3aed 55%,#2563eb)!important;box-shadow:0 22px 55px rgba(79,70,229,.2)!important}.section-title{color:var(--k-text)}
+
+/* ==========================================================
+   KOINON - IDENTIDADE VISUAL ÚNICA
+   ========================================================== */
+body{background:#f3f6fb!important;color:#172033!important;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.navbar{background:#fff!important;color:#172033!important;border-bottom:1px solid #e3e8f0;box-shadow:0 6px 24px rgba(15,23,42,.06)}
+.navbar .navbar-brand,.navbar .nav-link,.navbar .fw-semibold{color:#172033}
+.koinon-notification-bell{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;min-width:42px;border:1px solid #dfe5ee;border-radius:12px;background:#fff;color:#334155!important;text-decoration:none!important;box-shadow:0 6px 18px rgba(15,23,42,.08);transition:transform .18s,box-shadow .18s,border-color .18s;z-index:1080}
+.koinon-notification-bell:hover{transform:translateY(-1px);border-color:#b8c4d6;box-shadow:0 10px 24px rgba(15,23,42,.12);color:#172033!important}
+.koinon-notification-icon{font-size:1.18rem;line-height:1}
+.koinon-notification-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#dc3545;color:#fff;font-size:.68rem;font-weight:800;border:2px solid #fff;line-height:1}
+.koinon-notification-badge[hidden]{display:none!important}
+.koinon-notification-floating{position:fixed;top:14px;right:18px}
+.koinon-notification-in-navbar{margin-left:auto;margin-right:14px}
+.koinon-dashboard-back{margin:0 0 18px}
+.koinon-dashboard-back .btn{background:#fff;color:#334155;border-color:#dfe5ee}
+@media(max-width:768px){.koinon-notification-floating{top:10px;right:10px}.koinon-notification-in-navbar{margin-right:8px}.koinon-notification-bell{width:40px;height:40px;min-width:40px}}
+
+/* ==========================================================
+   KOINON - PADRÃO GLOBAL DE NAVEGAÇÃO E NOTIFICAÇÕES
+   ========================================================== */
+.navbar{position:relative!important;min-height:62px}
+.navbar .koinon-navbar-brand-centered{position:absolute!important;left:50%!important;top:50%;transform:translate(-50%,-50%)!important;z-index:2;white-space:nowrap}
+.navbar .koinon-nav-actions{margin-left:auto!important;position:relative;z-index:4;display:flex;align-items:center;gap:.65rem}
+.navbar .koinon-nav-actions .koinon-notification-bell{margin:0!important}
+.navbar a.koinon-logout-btn,
+.navbar a.koinon-logout-btn.btn,
+.navbar .koinon-logout-btn{background:#dc3545!important;border-color:#dc3545!important;color:#fff!important;box-shadow:0 6px 16px rgba(220,53,69,.18)!important;text-decoration:none!important}
+.navbar a.koinon-logout-btn:hover{background:#bb2d3b!important;border-color:#bb2d3b!important;color:#fff!important}
+.koinon-notification-bell{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;min-width:42px;border:1px solid #dfe5ee;border-radius:12px;background:#fff;color:#334155!important;text-decoration:none!important;box-shadow:0 6px 18px rgba(15,23,42,.08);transition:transform .18s,box-shadow .18s,border-color .18s;z-index:1080}
+.koinon-notification-bell:hover{transform:translateY(-1px);border-color:#b8c4d6;box-shadow:0 10px 24px rgba(15,23,42,.12);color:#172033!important}
+.koinon-notification-icon{font-size:1.18rem;line-height:1}
+.koinon-notification-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:#dc3545;color:#fff;font-size:.68rem;font-weight:800;border:2px solid #fff;line-height:1}
+.koinon-notification-badge[hidden]{display:none!important}
+.koinon-notification-floating{position:fixed;top:14px;right:18px}
+.koinon-notification-panel{position:fixed;z-index:2000;background:#fff;border:1px solid #dfe5ee;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.22);overflow:hidden;color:#172033}
+.koinon-notification-panel[hidden]{display:none!important}
+.koinon-notification-panel-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e8edf4;background:#f8fafc}
+.koinon-notification-panel-body{max-height:min(62vh,520px);overflow:auto}
+.koinon-notification-panel-foot{display:flex;justify-content:space-between;gap:8px;padding:12px 14px;border-top:1px solid #e8edf4;background:#fff}
+.koinon-notification-item{padding:14px 16px;border-bottom:1px solid #edf1f6;background:#fff}
+.koinon-notification-item:hover{background:#f8fafc}
+.koinon-notification-item-title{font-weight:750;color:#172033}
+.koinon-notification-panel .btn{font-weight:650}
+.koinon-hero{color:#fff!important}
+.koinon-hero h1,.koinon-hero h2,.koinon-hero h3,.koinon-hero p{color:#fff!important}
+.koinon-hero .text-white-50{color:rgba(255,255,255,.78)!important}
+
+@media(max-width:768px){
+  .navbar .koinon-navbar-brand-centered{max-width:52vw;overflow:hidden;text-overflow:ellipsis}
+  .navbar .koinon-nav-actions{gap:.4rem}
+  .navbar .koinon-nav-actions .text-white,.navbar .koinon-nav-actions .text-end{display:none!important}
+  .koinon-notification-floating{top:10px;right:10px}
+  .koinon-notification-bell{width:40px;height:40px;min-width:40px}
+}
+.navbar .text-white{color:#172033!important}
+.navbar .navbar-brand.text-white{color:#172033!important}
+
+/* V12 - identidade textual: somente o nome Koinon Services, sem logo */
+.navbar .koinon-logo,
+.navbar .koinon-logo-small,
+.navbar .navbar-brand img,
+.navbar-brand img[src*="logo-placeholder"] { display:none!important; }
+.navbar .koinon-navbar-brand-centered { color:#172033!important; font-weight:800!important; }
+.navbar .koinon-nav-actions { margin-left:auto!important; display:flex!important; align-items:center!important; gap:.65rem!important; }
+.navbar .koinon-nav-actions > .koinon-notification-bell { display:inline-flex!important; visibility:visible!important; opacity:1!important; }
+.navbar .koinon-nav-actions > .koinon-logout-btn { display:inline-flex!important; visibility:visible!important; opacity:1!important; background:#dc3545!important; color:#fff!important; border-color:#dc3545!important; }
+.navbar .koinon-nav-actions .text-white { color:#172033!important; }
+@media(max-width:768px){
+  .navbar .koinon-nav-actions { margin-left:auto!important; }
+  .navbar .koinon-nav-actions .text-white { display:inline!important; font-size:.85rem!important; }
+}
+
+/* V12 - remover completamente a imagem da marca; manter somente o nome */
+img[src*="logo-placeholder"],
+img.koinon-logo,
+img.koinon-logo-small { display:none!important; }
+.koinon-navbar-brand-centered { display:inline-flex!important; align-items:center!important; justify-content:center!important; text-decoration:none!important; }
+.koinon-navbar-brand-centered span { display:inline-block!important; }
+
+
+/* ==========================================================
+   KOINON SERVICES — VISUAL PREMIUM + TEMA CLARO/ESCURO
+========================================================== */
+:root{
+  --k-bg:#f4f7fb;
+  --k-surface:#ffffff;
+  --k-surface-2:#f8fafc;
+  --k-text:#172033;
+  --k-muted:#64748b;
+  --k-border:#e2e8f0;
+  --k-primary:#2563eb;
+  --k-primary-2:#7c3aed;
+  --k-shadow:0 18px 55px rgba(15,23,42,.10);
+  --k-radius:18px;
+}
+html[data-theme="dark"]{
+  --k-bg:#0b1120;
+  --k-surface:#111827;
+  --k-surface-2:#172033;
+  --k-text:#f1f5f9;
+  --k-muted:#94a3b8;
+  --k-border:#263449;
+  --k-shadow:0 18px 55px rgba(0,0,0,.30);
+}
+html,body{background:var(--k-bg);color:var(--k-text)}
+body{transition:background-color .25s ease,color .25s ease}
+.koinon-auth-page{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(37,99,235,.22), transparent 34%),
+    radial-gradient(circle at 85% 15%, rgba(124,58,237,.20), transparent 30%),
+    linear-gradient(135deg,#eef4ff 0%,#f8f7ff 48%,#eef2ff 100%);
+}
+html[data-theme="dark"] .koinon-auth-page{
+  background:
+    radial-gradient(circle at 15% 20%, rgba(37,99,235,.18), transparent 34%),
+    radial-gradient(circle at 85% 15%, rgba(124,58,237,.16), transparent 30%),
+    #0b1120;
+}
+.koinon-auth-card{
+  max-width:560px;
+  border:1px solid var(--k-border)!important;
+  border-radius:26px!important;
+  background:rgba(255,255,255,.86)!important;
+  box-shadow:var(--k-shadow)!important;
+  backdrop-filter:blur(16px);
+}
+html[data-theme="dark"] .koinon-auth-card{background:rgba(17,24,39,.90)!important}
+.koinon-eyebrow{
+  display:inline-flex;align-items:center;
+  padding:.4rem .7rem;border-radius:999px;
+  background:rgba(37,99,235,.10);color:var(--k-primary);
+  font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em
+}
+.card,.modal-content,.dropdown-menu,.list-group-item{
+  background:var(--k-surface)!important;
+  color:var(--k-text);
+  border-color:var(--k-border)!important;
+}
+.card{border-radius:var(--k-radius)!important;box-shadow:0 8px 30px rgba(15,23,42,.06)}
+.card-header,.table-light{background:var(--k-surface-2)!important;color:var(--k-text)!important;border-color:var(--k-border)!important}
+.text-muted,.form-text{color:var(--k-muted)!important}
+.form-control,.form-select,.input-group-text{
+  background:var(--k-surface)!important;color:var(--k-text)!important;
+  border-color:var(--k-border)!important;border-radius:12px
+}
+.form-control::placeholder{color:var(--k-muted)}
+.form-control:focus,.form-select:focus{
+  border-color:var(--k-primary)!important;
+  box-shadow:0 0 0 .22rem rgba(37,99,235,.12)!important
+}
+.btn{border-radius:11px;font-weight:700;transition:transform .18s,box-shadow .18s}
+.btn-primary{
+  background:linear-gradient(135deg,var(--k-primary),var(--k-primary-2))!important;
+  border:0!important;box-shadow:0 10px 24px rgba(37,99,235,.20)
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 28px rgba(37,99,235,.28)}
+.btn-success,.btn-warning,.btn-danger,.btn-secondary{font-weight:700}
+.navbar{
+  background:var(--k-surface)!important;
+  border-bottom:1px solid var(--k-border)!important;
+  box-shadow:0 6px 24px rgba(15,23,42,.06)
+}
+.navbar .navbar-brand,.navbar .nav-link,.navbar .text-white{color:var(--k-text)!important}
+.table{--bs-table-color:var(--k-text);--bs-table-bg:transparent;--bs-table-border-color:var(--k-border)}
+.table-hover>tbody>tr:hover>*{--bs-table-hover-bg:rgba(37,99,235,.06)}
+.alert{border-radius:14px;border-color:var(--k-border)}
+.bg-light{background:var(--k-surface-2)!important;color:var(--k-text)!important}
+.border{border-color:var(--k-border)!important}
+.koinon-theme-toggle{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:42px;height:42px;padding:0;border:1px solid var(--k-border);
+  border-radius:12px;background:var(--k-surface);color:var(--k-text);
+  box-shadow:0 6px 18px rgba(15,23,42,.07);cursor:pointer
+}
+.koinon-theme-toggle:hover{transform:translateY(-1px);border-color:var(--k-primary)}
+.koinon-premium-hero{
+  border-radius:26px;padding:32px;color:#fff;
+  background:
+    radial-gradient(circle at 80% 20%,rgba(255,255,255,.18),transparent 30%),
+    linear-gradient(135deg,#1d4ed8,#4f46e5 55%,#7c3aed);
+  box-shadow:0 20px 60px rgba(37,99,235,.22)
+}
+.koinon-stat-card{border:1px solid var(--k-border);background:var(--k-surface);border-radius:18px;padding:20px;box-shadow:0 8px 28px rgba(15,23,42,.06)}
+html[data-theme="dark"] .navbar .koinon-navbar-brand-centered{color:#f8fafc!important}
+html[data-theme="dark"] .koinon-notification-bell{background:var(--k-surface);color:var(--k-text)!important;border-color:var(--k-border)}
+html[data-theme="dark"] .koinon-notification-panel,
+html[data-theme="dark"] .koinon-notification-item,
+html[data-theme="dark"] .koinon-notification-panel-foot{background:var(--k-surface);color:var(--k-text);border-color:var(--k-border)}
+html[data-theme="dark"] .koinon-notification-panel-head{background:var(--k-surface-2);border-color:var(--k-border)}
+html[data-theme="dark"] .access-option{border-color:var(--k-border);color:var(--k-text);background:var(--k-surface)}
+html[data-theme="dark"] .access-option:hover,html[data-theme="dark"] .access-option.active{background:rgba(37,99,235,.12)}
+@media(max-width:768px){
+  .koinon-premium-hero{padding:24px;border-radius:20px}
+}
+
+
+/* KOINON PREMIUM GLOBAL / TEMA ESCURO - overrides da landing page */
+body{background:var(--k-bg)!important;color:var(--k-text)!important}
+.hero{min-height:620px!important;background:
+ radial-gradient(circle at 12% 15%,rgba(56,189,248,.22),transparent 28%),
+ radial-gradient(circle at 88% 18%,rgba(168,85,247,.20),transparent 30%),
+ linear-gradient(135deg,#0b1220 0%,#111827 52%,#1e1b4b 100%)!important}
+html[data-theme="dark"] .hero{background:
+ radial-gradient(circle at 15% 20%,rgba(59,130,246,.18),transparent 28%),
+ radial-gradient(circle at 85% 15%,rgba(124,58,237,.20),transparent 30%),
+ #070b14!important}
+.hero-card{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.18)!important;box-shadow:0 30px 90px rgba(0,0,0,.28)!important}
+.about-section,.cta-section,footer{background:var(--k-surface)!important;color:var(--k-text)!important}
+.cta-section{background:linear-gradient(135deg,#1d4ed8,#4f46e5 55%,#7c3aed)!important;color:#fff!important}
+.service-card,.profile-card{background:var(--k-surface)!important;color:var(--k-text)!important;border:1px solid var(--k-border)!important;box-shadow:var(--k-shadow)!important}
+.section-subtitle{color:var(--k-muted)!important}
+.service-icon{background:rgba(37,99,235,.12)!important;color:var(--k-primary)!important}
+footer{border-top:1px solid var(--k-border)}
+html[data-theme="dark"] .text-dark{color:var(--k-text)!important}
+html[data-theme="dark"] .bg-white{background:var(--k-surface)!important}
+html[data-theme="dark"] .navbar-toggler{filter:invert(1)}
+
+
+/* ==========================================================
+   KOINON SERVICES — TEMA ESCURO GLOBAL (CORREÇÃO FINAL)
+   Nenhuma seção pública/administrativa fica branca ou azul
+   sólido quando data-theme="dark" estiver ativo.
+========================================================== */
+html[data-theme="dark"] body,
+html[data-theme="dark"] main,
+html[data-theme="dark"] section,
+html[data-theme="dark"] .container,
+html[data-theme="dark"] .container-fluid {
+  color:var(--k-text);
+}
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-light,
+html[data-theme="dark"] .about-section,
+html[data-theme="dark"] footer {
+  background:var(--k-surface)!important;
+  color:var(--k-text)!important;
+}
+html[data-theme="dark"] .navbar {
+  background:rgba(11,17,32,.94)!important;
+  color:var(--k-text)!important;
+}
+html[data-theme="dark"] .navbar .nav-link,
+html[data-theme="dark"] .navbar .navbar-brand,
+html[data-theme="dark"] .navbar .navbar-brand span,
+html[data-theme="dark"] .navbar .text-primary,
+html[data-theme="dark"] .navbar .text-dark {
+  color:var(--k-text)!important;
+}
+html[data-theme="dark"] .hero {
+  background:
+    radial-gradient(circle at 15% 20%,rgba(37,99,235,.16),transparent 28%),
+    radial-gradient(circle at 85% 10%,rgba(124,58,237,.14),transparent 28%),
+    linear-gradient(135deg,#070b14 0%,#0b1120 55%,#111827 100%)!important;
+  color:#f8fafc!important;
+}
+html[data-theme="dark"] .hero-card {
+  background:rgba(17,24,39,.82)!important;
+  border-color:#263449!important;
+}
+html[data-theme="dark"] .cta-section {
+  background:
+    radial-gradient(circle at 80% 30%,rgba(124,58,237,.18),transparent 28%),
+    linear-gradient(135deg,#0b1120,#111827 55%,#17122a)!important;
+  color:var(--k-text)!important;
+  border-top:1px solid var(--k-border);
+  border-bottom:1px solid var(--k-border);
+}
+html[data-theme="dark"] .cta-section h1,
+html[data-theme="dark"] .cta-section h2,
+html[data-theme="dark"] .cta-section h3,
+html[data-theme="dark"] .cta-section p { color:var(--k-text)!important; }
+html[data-theme="dark"] .service-card,
+html[data-theme="dark"] .profile-card,
+html[data-theme="dark"] .sidebar-card,
+html[data-theme="dark"] .module-card,
+html[data-theme="dark"] .koinon-stat-card {
+  background:var(--k-surface)!important;
+  color:var(--k-text)!important;
+  border-color:var(--k-border)!important;
+}
+html[data-theme="dark"] .service-icon,
+html[data-theme="dark"] .module-icon {
+  background:#18243a!important;
+  color:#93c5fd!important;
+}
+html[data-theme="dark"] .table-striped>tbody>tr:nth-of-type(odd)>*,
+html[data-theme="dark"] .table-hover>tbody>tr:hover>* {
+  color:var(--k-text)!important;
+  --bs-table-accent-bg:#172033!important;
+}
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .offcanvas,
+html[data-theme="dark"] .list-group-item {
+  background:var(--k-surface)!important;
+  color:var(--k-text)!important;
+  border-color:var(--k-border)!important;
+}
+html[data-theme="dark"] .dropdown-item { color:var(--k-text)!important; }
+html[data-theme="dark"] .dropdown-item:hover { background:var(--k-surface-2)!important; }
+html[data-theme="dark"] .alert-info,
+html[data-theme="dark"] .alert-primary,
+html[data-theme="dark"] .alert-secondary {
+  background:#17243a!important;color:#dbeafe!important;border-color:#29466e!important;
+}
+html[data-theme="dark"] .alert-warning { background:#332814!important;color:#fde68a!important;border-color:#6b4f13!important; }
+html[data-theme="dark"] .alert-danger { background:#35171d!important;color:#fecdd3!important;border-color:#6f2733!important; }
+html[data-theme="dark"] .alert-success { background:#122b20!important;color:#bbf7d0!important;border-color:#245d40!important; }
+html[data-theme="dark"] .text-primary { color:#93c5fd!important; }
+html[data-theme="dark"] .text-secondary { color:#cbd5e1!important; }
+html[data-theme="dark"] .text-dark { color:var(--k-text)!important; }
+html[data-theme="dark"] .border-primary { border-color:#3b82f6!important; }
+html[data-theme="dark"] [style*="#0d6efd"],
+html[data-theme="dark"] [style*="#084298"],
+html[data-theme="dark"] [style*="rgb(13, 110, 253)"] {
+  background:var(--k-surface)!important;
+  color:var(--k-text)!important;
+  border-color:var(--k-border)!important;
+}
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  color-scheme:dark;
+}
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .input-group-text {
+  background:#111827!important;
+  color:#f8fafc!important;
+  border-color:#334155!important;
+}
+html[data-theme="dark"] .form-control:disabled,
+html[data-theme="dark"] .form-select:disabled {
+  background:#0f172a!important;
+  color:#64748b!important;
+}
+html[data-theme="dark"] .login-card { background:var(--k-surface)!important; }
+html[data-theme="dark"] .login-info {
+  background:linear-gradient(160deg,#0f172a,#172554)!important;
+  border-right:1px solid var(--k-border);
+}
+html[data-theme="dark"] .login-form { background:var(--k-surface)!important; }
+html[data-theme="dark"] .access-option.active {
+  background:#17243a!important;
+  border-color:#3b82f6!important;
+  color:#bfdbfe!important;
+}
+html[data-theme="dark"] .access-option:hover { background:#172033!important; border-color:#3b82f6!important; }
+
+/* CORREÇÃO EXTRA — blocos de destaque do dashboard no tema escuro */
+html[data-theme="dark"] .welcome-card,
+html[data-theme="dark"] .koinon-hero,
+html[data-theme="dark"] .koinon-premium-hero {
+  background:
+    radial-gradient(circle at 82% 18%, rgba(124,58,237,.16), transparent 28%),
+    linear-gradient(135deg,#0b1120 0%,#111827 58%,#17122a 100%) !important;
+  color:#f8fafc !important;
+  border:1px solid #263449 !important;
+  box-shadow:0 20px 55px rgba(0,0,0,.30) !important;
+}
+html[data-theme="dark"] .welcome-card h1,
+html[data-theme="dark"] .welcome-card h2,
+html[data-theme="dark"] .welcome-card h3,
+html[data-theme="dark"] .welcome-card p,
+html[data-theme="dark"] .welcome-card span,
+html[data-theme="dark"] .koinon-hero h1,
+html[data-theme="dark"] .koinon-hero h2,
+html[data-theme="dark"] .koinon-hero h3,
+html[data-theme="dark"] .koinon-hero p {
+  color:#f8fafc !important;
+}
+html[data-theme="dark"] .bg-primary,
+html[data-theme="dark"] .text-bg-primary {
+  background:#17243a !important;
+  color:#dbeafe !important;
+}
+html[data-theme="dark"] .bg-info,
+html[data-theme="dark"] .text-bg-info {
+  background:#17243a !important;
+  color:#bae6fd !important;
+}
+html[data-theme="dark"] .progress {
+  background:#1e293b !important;
+}
+
+
+/* ==========================================================
+   KOINON SERVICES — AJUSTE FINAL V13
+   Navegação consistente, tema escuro real e componentes sem
+   dependência das cores azuis antigas do Bootstrap.
+========================================================== */
+.navbar > .container,
+.navbar > .container-fluid {
+  width:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:1rem!important;
+}
+.navbar .koinon-navbar-brand-centered,
+.navbar .navbar-brand {
+  position:static!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  margin-right:auto!important;
+  white-space:nowrap!important;
+  color:var(--k-text)!important;
+}
+.navbar .koinon-nav-actions {
+  margin-left:auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:.65rem!important;
+  position:relative!important;
+  z-index:20!important;
+}
+.navbar .koinon-nav-actions > * { flex:0 0 auto!important; }
+.navbar .koinon-nav-actions .koinon-notification-bell { order:0!important; }
+.navbar .koinon-nav-actions .koinon-theme-toggle { order:1!important; }
+.navbar .koinon-nav-actions .koinon-logout-btn { order:2!important; }
+.koinon-dashboard-page .navbar { min-height:68px!important; }
+
+/* Evita que cartões/elementos Bootstrap mantenham o azul antigo no escuro. */
+html[data-theme="dark"] .bg-primary,
+html[data-theme="dark"] .bg-info,
+html[data-theme="dark"] .bg-secondary,
+html[data-theme="dark"] .bg-dark {
+  background:var(--k-surface-2)!important;
+  color:var(--k-text)!important;
+}
+html[data-theme="dark"] .btn-outline-primary,
+html[data-theme="dark"] .btn-outline-secondary {
+  color:#bfdbfe!important;
+  border-color:#475569!important;
+}
+html[data-theme="dark"] .btn-outline-primary:hover,
+html[data-theme="dark"] .btn-outline-secondary:hover {
+  background:#1e293b!important;
+  color:#f8fafc!important;
+}
+html[data-theme="dark"] .badge.bg-primary,
+html[data-theme="dark"] .badge.text-bg-primary {
+  background:#243b5a!important;
+  color:#dbeafe!important;
+}
+html[data-theme="dark"] .badge.bg-info,
+html[data-theme="dark"] .badge.text-bg-info {
+  background:#1d3446!important;
+  color:#bae6fd!important;
+}
+html[data-theme="dark"] .badge.bg-dark,
+html[data-theme="dark"] .badge.text-bg-dark {
+  background:#273244!important;
+  color:#f1f5f9!important;
+}
+html[data-theme="dark"] .table-light,
+html[data-theme="dark"] thead.table-light,
+html[data-theme="dark"] .table-light > * {
+  --bs-table-bg:var(--k-surface-2)!important;
+  --bs-table-color:var(--k-text)!important;
+  color:var(--k-text)!important;
+}
+html[data-theme="dark"] .table-light th { background:var(--k-surface-2)!important;color:var(--k-text)!important; }
+html[data-theme="dark"] .text-white { color:var(--k-text)!important; }
+html[data-theme="dark"] .text-white-50 { color:#94a3b8!important; }
+html[data-theme="dark"] .koinon-notification-bell,
+html[data-theme="dark"] .koinon-theme-toggle {
+  background:var(--k-surface)!important;
+  color:var(--k-text)!important;
+  border-color:var(--k-border)!important;
+}
+html[data-theme="dark"] .koinon-dashboard-back .btn { background:var(--k-surface)!important;color:var(--k-text)!important; }
+html[data-theme="dark"] .koinon-premium-hero {
+  background:radial-gradient(circle at 80% 15%,rgba(124,58,237,.16),transparent 28%),linear-gradient(135deg,#0b1120,#111827 60%,#17122a)!important;
+  border:1px solid var(--k-border)!important;
+}
+
+/* Corrige áreas que usam cores inline da versão anterior. */
+html[data-theme="dark"] [style*="background-color: #f5f7fa"],
+html[data-theme="dark"] [style*="background: #f5f7fa"],
+html[data-theme="dark"] [style*="background-color:#f5f7fa"],
+html[data-theme="dark"] [style*="background:#f5f7fa"] {
+  background:var(--k-bg)!important;
+  color:var(--k-text)!important;
+}
+
+@media(max-width:768px){
+  .navbar > .container,
+  .navbar > .container-fluid { padding-left:.8rem!important;padding-right:.8rem!important; }
+  .navbar .koinon-nav-actions { gap:.4rem!important; }
+  .navbar .koinon-nav-actions .text-white,
+  .navbar .koinon-nav-actions .text-end { display:none!important; }
+}
+
+
+/* ==========================================================
+   KOINON SERVICES V14 — NAVBAR DEFINITIVA
+   Conteúdo da barra ocupa toda a largura. Marca à esquerda;
+   notificações, tema, usuário e sair no extremo direito.
+========================================================== */
+.navbar > .container,
+.navbar > .container-fluid {
+  width:100%!important;
+  max-width:none!important;
+  margin-left:0!important;
+  margin-right:0!important;
+  padding-left:1.5rem!important;
+  padding-right:1.5rem!important;
+}
+.navbar .koinon-nav-actions {
+  margin-left:auto!important;
+  margin-right:0!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  gap:.55rem!important;
+  flex-wrap:nowrap!important;
+}
+.navbar .koinon-nav-actions > * {
+  position:relative!important;
+  margin:0!important;
+  flex:0 0 auto!important;
+}
+.navbar .koinon-nav-actions .koinon-notification-bell,
+.navbar .koinon-nav-actions .koinon-theme-toggle,
+.navbar .koinon-nav-actions .koinon-logout-btn {
+  position:relative!important;
+  inset:auto!important;
+}
+.navbar .koinon-nav-actions .koinon-theme-toggle {
+  width:42px!important;
+  height:42px!important;
+  min-width:42px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:12px!important;
+}
+.navbar .koinon-nav-actions .koinon-logout-btn {
+  white-space:nowrap!important;
+}
+html[data-theme="dark"] .navbar .koinon-nav-actions .text-white,
+html[data-theme="dark"] .navbar .koinon-nav-actions .text-end,
+html[data-theme="dark"] .navbar .koinon-nav-actions span {
+  color:var(--k-text)!important;
+}
+
+/* Corrige elementos Bootstrap que ainda podiam deixar uma faixa azul no tema escuro. */
+html[data-theme="dark"] .navbar-dark,
+html[data-theme="dark"] .navbar.bg-primary,
+html[data-theme="dark"] nav.navbar.bg-primary {
+  background:rgba(11,17,32,.96)!important;
+}
+html[data-theme="dark"] .card-header.bg-primary,
+html[data-theme="dark"] .card-header.bg-info,
+html[data-theme="dark"] .card-header.bg-dark {
+  background:var(--k-surface-2)!important;
+  color:var(--k-text)!important;
+  border-bottom-color:var(--k-border)!important;
+}
+html[data-theme="dark"] .btn-primary {
+  background:linear-gradient(135deg,var(--k-primary),var(--k-primary-2))!important;
+  color:#fff!important;
+}
+
+/* Área do morador — informações de veículos somente para visualização. */
+.koinon-vehicle-card {
+  border:1px solid var(--k-border);
+  background:var(--k-surface);
+  border-radius:18px;
+  box-shadow:var(--k-shadow);
+}
+.koinon-vehicle-item {
+  border:1px solid var(--k-border);
+  background:var(--k-surface-2);
+  border-radius:14px;
+}
+.koinon-parking-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  border:1px solid var(--k-border);
+  border-radius:999px;
+  padding:.45rem .7rem;
+  background:var(--k-surface-2);
+  color:var(--k-text);
+  font-weight:700;
+}
+@media(max-width:768px){
+  .navbar > .container,
+  .navbar > .container-fluid {
+    padding-left:.8rem!important;
+    padding-right:.8rem!important;
+  }
+  .navbar .koinon-nav-actions { gap:.35rem!important; }
+}
+
+
+/* ==========================================================
+   KOINON V5 — NAVBAR / TEMA / MORADOR
+   Controles sempre no extremo direito, sem sobreposição.
+========================================================== */
+.navbar > .container,
+.navbar > .container-fluid {
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding-left:1.5rem !important;
+  padding-right:1.5rem !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  min-width:0 !important;
+}
+.navbar > .container > .navbar-brand,
+.navbar > .container-fluid > .navbar-brand {
+  position:static !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  transform:none !important;
+  margin:0 auto 0 0 !important;
+  flex:0 0 auto !important;
+  color:var(--k-text) !important;
+  white-space:nowrap !important;
+}
+.navbar > .container > .koinon-nav-actions,
+.navbar > .container-fluid > .koinon-nav-actions {
+  position:static !important;
+  margin-left:auto !important;
+  margin-right:0 !important;
+  padding:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:.55rem !important;
+  flex:0 0 auto !important;
+  width:auto !important;
+  max-width:none !important;
+  float:none !important;
+}
+.navbar .koinon-nav-actions > * {
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  margin:0 !important;
+  flex:0 0 auto !important;
+}
+.navbar .koinon-nav-actions .koinon-notification-bell,
+.navbar .koinon-nav-actions .koinon-theme-toggle,
+.navbar .koinon-nav-actions .koinon-logout-btn {
+  position:relative !important;
+  flex:0 0 auto !important;
+}
+.navbar .koinon-nav-actions .koinon-theme-toggle {
+  width:42px !important;
+  height:42px !important;
+  min-width:42px !important;
+  padding:0 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.navbar .koinon-nav-actions .koinon-logout-btn {
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  white-space:nowrap !important;
+}
+/* Nome do usuário: sempre legível no tema claro e escuro. */
+.navbar .koinon-nav-actions .fw-semibold,
+.navbar .koinon-nav-actions .text-white,
+.navbar .koinon-nav-actions .text-end,
+.navbar .koinon-nav-actions .koinon-user-name {
+  color:var(--k-text) !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+html[data-theme="dark"] .navbar .koinon-nav-actions .fw-semibold,
+html[data-theme="dark"] .navbar .koinon-nav-actions .text-white,
+html[data-theme="dark"] .navbar .koinon-nav-actions .text-end,
+html[data-theme="dark"] .navbar .koinon-nav-actions .koinon-user-name {
+  color:#f8fafc !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+html[data-theme="dark"] .navbar .koinon-nav-actions small,
+html[data-theme="dark"] .navbar .koinon-nav-actions .text-muted {
+  color:#cbd5e1 !important;
+}
+/* Evita que bg-primary/text-white do Morador volte a esconder o nome. */
+html[data-theme="dark"] .navbar.bg-primary .koinon-nav-actions .text-white,
+html[data-theme="dark"] .navbar.navbar-dark .koinon-nav-actions .text-white {
+  color:#f8fafc !important;
+}
+/* Card de veículos do morador */
+.koinon-vehicle-card {
+  min-height:100%;
+}
+@media(max-width:768px){
+  .navbar > .container,
+  .navbar > .container-fluid {
+    padding-left:.8rem !important;
+    padding-right:.8rem !important;
+  }
+  .navbar .koinon-nav-actions { gap:.35rem !important; }
+  .navbar .koinon-nav-actions .text-end { display:block !important; }
+  .navbar .koinon-nav-actions .koinon-user-name { max-width:34vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+}
+
+/* ==========================================================
+   KOINON V6 — CONTROLES DA NAVBAR NO EXTREMO DIREITO
+   Regra definitiva para Administração, Síndico e Porteiro.
+   O Morador mantém a mesma posição correta.
+========================================================== */
+.navbar { position: relative !important; }
+.navbar .koinon-nav-actions {
+  position: absolute !important;
+  right: 24px !important;
+  top: 50% !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  max-width: calc(100vw - 40px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  z-index: 1100 !important;
+}
+.navbar .koinon-nav-actions > * {
+  position: relative !important;
+  left: auto !important;
+  right: auto !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+.navbar .koinon-nav-actions .text-end,
+.navbar .koinon-nav-actions .koinon-user-name {
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+.navbar .koinon-nav-actions .koinon-theme-toggle {
+  order: 2 !important;
+}
+.navbar .koinon-nav-actions .koinon-notification-bell {
+  order: 1 !important;
+}
+.navbar .koinon-nav-actions .koinon-logout-btn {
+  order: 3 !important;
+}
+@media (max-width: 768px) {
+  .navbar .koinon-nav-actions {
+    right: 10px !important;
+    gap: 6px !important;
+    max-width: calc(100vw - 20px) !important;
+  }
+  .navbar .koinon-nav-actions .text-end {
+    display: block !important;
+    max-width: 34vw !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .navbar .koinon-nav-actions .koinon-user-name {
+    max-width: 34vw !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+/* Contraste definitivo do nome/perfil no tema escuro. */
+html[data-theme="dark"] .navbar .koinon-nav-actions .koinon-user-name,
+html[data-theme="dark"] .navbar .koinon-nav-actions .fw-semibold,
+html[data-theme="dark"] .navbar .koinon-nav-actions .text-white {
+  color: #f8fafc !important;
+  opacity: 1 !important;
+}
+html[data-theme="dark"] .navbar .koinon-nav-actions small,
+html[data-theme="dark"] .navbar .koinon-nav-actions .text-muted {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+
+/* ==========================================================
+   KOINON V7 — NAVBAR CORRIGIDA DE VERDADE
+   O grupo do Administrador/Sindico/Porteiro fica no fluxo
+   normal do flexbox e sempre encostado ao lado direito.
+   Nunca usar position:absolute na barra.
+========================================================== */
+.navbar > .container,
+.navbar > .container-fluid {
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding-left:24px !important;
+  padding-right:24px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  min-height:68px !important;
+  min-width:0 !important;
+}
+.navbar > .container > .navbar-brand,
+.navbar > .container-fluid > .navbar-brand {
+  position:static !important;
+  left:auto !important;
+  right:auto !important;
+  top:auto !important;
+  transform:none !important;
+  margin:0 auto 0 0 !important;
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+.navbar > .container > .koinon-nav-actions,
+.navbar > .container-fluid > .koinon-nav-actions {
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  margin:0 0 0 auto !important;
+  padding:0 !important;
+  width:auto !important;
+  max-width:none !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:10px !important;
+  flex:0 0 auto !important;
+  float:none !important;
+  z-index:20 !important;
+}
+.navbar .koinon-nav-actions > * {
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  margin:0 !important;
+  flex:0 0 auto !important;
+}
+.navbar .koinon-nav-actions .koinon-notification-bell { order:1 !important; }
+.navbar .koinon-nav-actions .text-end { order:2 !important; text-align:right !important; }
+.navbar .koinon-nav-actions .koinon-theme-toggle { order:3 !important; }
+.navbar .koinon-nav-actions .koinon-logout-btn,
+.navbar .koinon-nav-actions a[href*="logout.php"] { order:4 !important; }
+.navbar .koinon-nav-actions .koinon-user-name {
+  white-space:nowrap !important;
+  text-align:right !important;
+  color:var(--k-text) !important;
+}
+html[data-theme="dark"] .navbar .koinon-nav-actions .koinon-user-name,
+html[data-theme="dark"] .navbar .koinon-nav-actions .fw-semibold {
+  color:#f8fafc !important;
+}
+html[data-theme="dark"] .navbar .koinon-nav-actions small,
+html[data-theme="dark"] .navbar .koinon-nav-actions .text-muted {
+  color:#cbd5e1 !important;
+}
+@media(max-width:768px){
+  .navbar > .container,
+  .navbar > .container-fluid { padding-left:12px !important; padding-right:12px !important; }
+  .navbar .koinon-nav-actions { gap:6px !important; }
+  .navbar .koinon-nav-actions .text-end { max-width:40vw !important; overflow:hidden !important; text-overflow:ellipsis !important; white-space:nowrap !important; }
+}
+
+
+/* ==========================================================
+   KOINON V8 — TOPO DEFINITIVO
+   Admin / Síndico / Porteiro: controles sempre no extremo direito.
+========================================================== */
+.navbar > .container-fluid,
+.navbar > .container {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  flex-wrap:nowrap !important;
+  width:100% !important;
+  min-width:0 !important;
+}
+.navbar > .container-fluid > .navbar-brand,
+.navbar > .container > .navbar-brand {
+  position:static !important;
+  transform:none !important;
+  margin:0 auto 0 0 !important;
+  flex:0 0 auto !important;
+}
+.navbar > .container-fluid > .koinon-nav-actions,
+.navbar > .container > .koinon-nav-actions {
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  margin-left:auto !important;
+  margin-right:0 !important;
+  width:auto !important;
+  max-width:none !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  flex-direction:row !important;
+  flex-wrap:nowrap !important;
+  gap:10px !important;
+  flex:0 0 auto !important;
+  float:none !important;
+}
+.navbar .koinon-nav-actions > * {
+  position:static !important;
+  inset:auto !important;
+  transform:none !important;
+  margin:0 !important;
+  flex:0 0 auto !important;
+}
+.navbar .koinon-nav-actions .koinon-notification-bell,
+.navbar .koinon-nav-actions .koinon-theme-toggle,
+.navbar .koinon-nav-actions .koinon-logout-btn {
+  position:relative !important;
+  flex:0 0 auto !important;
+}
+.navbar .koinon-nav-actions .text-end {
+  display:block !important;
+  text-align:right !important;
+  white-space:nowrap !important;
+}
+@media (max-width:768px){
+  .navbar > .container-fluid,
+  .navbar > .container { padding-left:12px !important; padding-right:12px !important; }
+  .navbar .koinon-nav-actions { gap:6px !important; }
+  .navbar .koinon-nav-actions .text-end { max-width:34vw !important; overflow:hidden !important; text-overflow:ellipsis !important; }
+}
+
+/* ==========================================================
+   KOINON SERVICES V9 — CORREÇÕES FINAIS
+   ========================================================== */
+
+/* Notificações: títulos, mensagens e datas legíveis no tema escuro. */
+html[data-theme="dark"] .koinon-notification-panel {
+  background: var(--k-surface) !important;
+  color: var(--k-text) !important;
+  border-color: var(--k-border) !important;
+}
+html[data-theme="dark"] .koinon-notification-panel-head,
+html[data-theme="dark"] .koinon-notification-panel-foot {
+  background: var(--k-surface-2) !important;
+  color: var(--k-text) !important;
+  border-color: var(--k-border) !important;
+}
+html[data-theme="dark"] .koinon-notification-item {
+  background: var(--k-surface) !important;
+  color: var(--k-text) !important;
+  border-color: var(--k-border) !important;
+}
+html[data-theme="dark"] .koinon-notification-item:hover {
+  background: var(--k-surface-2) !important;
+}
+html[data-theme="dark"] .koinon-notification-item-title,
+html[data-theme="dark"] .koinon-notification-panel strong {
+  color: #f8fafc !important;
+  opacity: 1 !important;
+}
+html[data-theme="dark"] .koinon-notification-item .text-muted,
+html[data-theme="dark"] .koinon-notification-panel .text-muted {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+html[data-theme="dark"] .koinon-notification-panel .btn-light {
+  background: #273244 !important;
+  border-color: #3b475b !important;
+  color: #f8fafc !important;
+}
+
+/* Dashboard público: CTA usa a mesma identidade visual do hero. */
+.cta-section {
+  background: linear-gradient(135deg,#4338ca,#7c3aed 55%,#2563eb) !important;
+  color: #fff !important;
+}
+.cta-section h1,
+.cta-section h2,
+.cta-section h3,
+.cta-section p {
+  color: #fff !important;
+}
+
+/* Rodapé: texto sempre acompanha o tema. */
+footer,
+footer strong,
+footer .small {
+  color: var(--k-text) !important;
+  opacity: 1 !important;
+}
+html[data-theme="dark"] footer,
+html[data-theme="dark"] footer strong,
+html[data-theme="dark"] footer .small {
+  color: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+/* Unidades: badge de quantidade de vagas não perde contraste no escuro. */
+html[data-theme="dark"] .badge.bg-primary-subtle.text-primary,
+html[data-theme="dark"] .bg-primary-subtle.text-primary {
+  background: #1e3a5f !important;
+  color: #bfdbfe !important;
+  border: 1px solid #31577f !important;
+}
+
+/* Cards adicionados à área do morador. */
+.koinon-resident-extra-card {
+  border: 1px solid var(--k-border);
+  background: var(--k-surface);
+  border-radius: 18px;
+  box-shadow: var(--k-shadow);
+}
+
+
+/* ==========================================================
+   KOINON SERVICES V10 — AJUSTES DE NAVEGAÇÃO E ÁREA DO MORADOR
+   ========================================================== */
+html[data-theme="dark"] .koinon-notification-item-title,
+html[data-theme="dark"] .koinon-notification-panel strong,
+html[data-theme="dark"] .koinon-notification-panel .btn,
+html[data-theme="dark"] .koinon-notification-panel a {
+  color: #f8fafc !important;
+  opacity: 1 !important;
+}
+html[data-theme="dark"] .koinon-notification-item .text-muted,
+html[data-theme="dark"] .koinon-notification-panel .text-muted,
+html[data-theme="dark"] .koinon-notification-panel-foot .btn-outline-primary {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+html[data-theme="dark"] .koinon-notification-panel .btn-light {
+  background: #273244 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+/* Controles globais sem Sair: o grupo fica sempre alinhado à direita. */
+.navbar .koinon-nav-actions {
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: .65rem !important;
+}
+
+/* Cards de veículo/vagas legíveis nos dois temas. */
+.koinon-parking-badge {
+  color: var(--k-text) !important;
+  background: var(--k-surface-2) !important;
+  border-color: var(--k-border) !important;
+}
+html[data-theme="dark"] .koinon-parking-badge {
+  color: #f8fafc !important;
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+/* Ações do morador ficam nos próprios módulos, evitando duplicidade. */
+.koinon-action-card {
+  min-height: 150px;
+}
+
+@media (max-width: 768px) {
+  .navbar .koinon-nav-actions { gap: .4rem !important; }
+}
+
+
+/* ==========================================================
+   KOINON V12 — CORREÇÕES DE CONTRASTE E NAVEGAÇÃO
+========================================================== */
+html[data-theme="dark"] .morador-stat,
+html[data-theme="dark"] .morador-stat.card {
+  background:var(--k-surface)!important;
+  color:var(--k-text)!important;
+  border-color:var(--k-border)!important;
+}
+html[data-theme="dark"] .morador-stat .text-muted,
+html[data-theme="dark"] .morador-stat .small { color:var(--k-muted)!important; }
+html[data-theme="dark"] .morador-stat .h3 { color:var(--k-text)!important; }
+html[data-theme="dark"] .koinon-notification-item-title,
+html[data-theme="dark"] .koinon-notification-panel-head strong,
+html[data-theme="dark"] .koinon-notification-panel .btn { color:var(--k-text)!important; }
+html[data-theme="dark"] .koinon-notification-item .text-muted,
+html[data-theme="dark"] .koinon-notification-panel .text-muted { color:var(--k-muted)!important; }
+html[data-theme="dark"] .form-text { color:#94a3b8!important; }
+html[data-theme="dark"] .form-label,
+html[data-theme="dark"] label { color:var(--k-text)!important; }
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .table td { color:var(--k-text); }
+html[data-theme="dark"] .btn-light {
+  background:var(--k-surface-2)!important;
+  color:var(--k-text)!important;
+  border-color:var(--k-border)!important;
+}
+html[data-theme="dark"] .btn-light:hover { background:#223047!important; }
+html[data-theme="dark"] .koinon-page-back .btn,
+html[data-theme="dark"] .koinon-dashboard-back .btn {
+  background:var(--k-surface)!important;
+  color:var(--k-text)!important;
+  border-color:var(--k-border)!important;
+}
+/* Em páginas sem navbar, tema e sino ficam juntos no canto superior direito. */
+html[data-theme="dark"] .koinon-theme-toggle { color:var(--k-text)!important; }
+
+
+/* ==========================================================
+   KOINON V13 — BARRA SUPERIOR ÚNICA
+   Substitui os controles que "flutuavam" sobre as telas.
+   [← Voltar] | Koinon Services | [🔔] [🌙] ([Sair] nos dashboards)
+========================================================== */
+.koinon-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1040;
+  width: 100%;
+  background: color-mix(in srgb, var(--k-surface) 92%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--k-border);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, .05);
+  margin-bottom: 0;
+}
+.koinon-topbar__inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: .75rem;
+  min-height: 66px;
+  padding: .6rem 1.5rem;
+}
+.koinon-topbar__left,
+.koinon-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  min-width: 0;
+}
+.koinon-topbar__left  { justify-self: start; }
+.koinon-topbar__right { justify-self: end; justify-content: flex-end; flex-wrap: nowrap; }
+.koinon-topbar__right > * { flex: 0 0 auto; position: relative; margin: 0; }
+.koinon-topbar__brand {
+  justify-self: center;
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -.01em;
+  color: var(--k-text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.koinon-topbar__brand:hover { color: var(--k-primary); }
+.koinon-topbar__back { white-space: nowrap; display: inline-flex; align-items: center; gap: .35rem; }
+.koinon-topbar__back .koinon-back-short { display: none; }
+.koinon-topbar__user { line-height: 1.15; }
+.koinon-topbar__user .fw-semibold { color: var(--k-text); }
+.koinon-topbar .btn-outline-secondary {
+  background: var(--k-surface);
+  color: var(--k-text);
+  border-color: var(--k-border);
+}
+.koinon-topbar .btn-outline-secondary:hover {
+  background: var(--k-surface-2);
+  color: var(--k-text);
+  border-color: var(--k-primary);
+}
+.koinon-topbar .koinon-notification-bell,
+.koinon-topbar .koinon-theme-toggle {
+  position: relative;
+  inset: auto;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+}
+.koinon-topbar .koinon-logout-btn { white-space: nowrap; }
+
+/* Botão de tema nas telas públicas (login, LGPD, definir senha...). */
+.koinon-theme-floating {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 2100;
+}
+
+/* Conteúdo logo abaixo da barra: respiro consistente. */
+.koinon-has-topbar > .container-fluid.mt-4,
+.koinon-has-topbar > .container.py-4,
+.koinon-has-topbar > .container.py-5 { margin-top: 1.5rem !important; }
+
+/* Cabeçalhos de página com botões: quebram linha em vez de se sobrepor. */
+.d-flex.justify-content-between.align-items-center.mb-4 { flex-wrap: wrap; gap: .75rem; }
+
+@media (max-width: 768px) {
+  .koinon-topbar__inner { padding: .5rem .75rem; min-height: 58px; gap: .4rem; }
+  .koinon-topbar__brand { font-size: 1rem; }
+  .koinon-topbar__back .koinon-back-full { display: none; }
+  .koinon-topbar__back .koinon-back-short { display: inline; }
+  .koinon-topbar .koinon-notification-bell,
+  .koinon-topbar .koinon-theme-toggle { width: 38px; height: 38px; min-width: 38px; }
+  .koinon-theme-floating { top: 10px; right: 10px; }
+}
+@media (max-width: 420px) {
+  .koinon-topbar__brand { display: none; }
+  .koinon-topbar__inner { grid-template-columns: 1fr auto; }
+}
+@media print { .koinon-topbar, .koinon-theme-floating { display: none !important; } }
+
+html[data-theme="dark"] .koinon-topbar { box-shadow: 0 8px 30px rgba(0, 0, 0, .35); }
+html[data-theme="dark"] .koinon-topbar__brand { color: #f8fafc; }
+html[data-theme="dark"] .koinon-topbar__user .fw-semibold { color: #f8fafc; }
+
+
+/* ==========================================================
+   KOINON V14 — EFEITOS VISUAIS
+   Animações de entrada, brilho, gradientes e microinterações.
+   Tudo respeita "prefers-reduced-motion" (acessibilidade).
+========================================================== */
+@keyframes k-fade-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes k-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes k-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes k-float { 0%, 100% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(24px, -30px, 0) scale(1.08); } }
+@keyframes k-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, .45); } 70% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); } }
+@keyframes k-shine { from { transform: translateX(-120%) skewX(-20deg); } to { transform: translateX(220%) skewX(-20deg); } }
+
+/* Fundo com "manchas" de cor suaves, atrás de todo o conteúdo */
+body.koinon-has-topbar::before,
+body.koinon-dashboard-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(520px 380px at 8% 12%, rgba(99, 102, 241, .14), transparent 70%),
+    radial-gradient(480px 360px at 92% 18%, rgba(14, 165, 233, .12), transparent 70%),
+    radial-gradient(520px 420px at 70% 96%, rgba(168, 85, 247, .11), transparent 70%);
+  animation: k-float 22s ease-in-out infinite;
+}
+html[data-theme="dark"] body.koinon-has-topbar::before,
+html[data-theme="dark"] body.koinon-dashboard-page::before {
+  background:
+    radial-gradient(520px 380px at 8% 12%, rgba(99, 102, 241, .22), transparent 70%),
+    radial-gradient(480px 360px at 92% 18%, rgba(14, 165, 233, .16), transparent 70%),
+    radial-gradient(520px 420px at 70% 96%, rgba(168, 85, 247, .18), transparent 70%);
+}
+
+/* Barra superior: marca com gradiente e linha de brilho */
+.koinon-topbar { animation: k-fade-in .5s ease both; }
+.koinon-topbar::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px;
+  background: linear-gradient(90deg, transparent, #6366f1, #0ea5e9, #a855f7, transparent);
+  background-size: 200% 100%; animation: k-gradient 6s linear infinite; opacity: .8;
+}
+.koinon-topbar__brand {
+  background: linear-gradient(90deg, #4f46e5, #0ea5e9, #7c3aed);
+  background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; animation: k-gradient 8s ease infinite;
+}
+html[data-theme="dark"] .koinon-topbar__brand { background-image: linear-gradient(90deg, #a5b4fc, #7dd3fc, #d8b4fe); }
+.koinon-topbar .koinon-notification-bell,
+.koinon-topbar .koinon-theme-toggle { transition: transform .2s ease, box-shadow .2s ease; }
+.koinon-topbar .koinon-notification-bell:hover,
+.koinon-topbar .koinon-theme-toggle:hover { transform: translateY(-2px) rotate(-6deg); box-shadow: 0 8px 20px rgba(79, 70, 229, .28); }
+.koinon-notification-badge { animation: k-pulse 2.2s infinite; }
+
+/* Boas-vindas / hero dos dashboards: gradiente em movimento + brilho */
+.welcome-card, .koinon-hero {
+  background: linear-gradient(120deg, #4338ca, #7c3aed 35%, #2563eb 70%, #0ea5e9) !important;
+  background-size: 220% 220% !important;
+  animation: k-gradient 14s ease infinite, k-fade-up .7s ease both;
+  position: relative; overflow: hidden;
+}
+.welcome-card::before, .koinon-hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(420px 220px at 85% -10%, rgba(255, 255, 255, .22), transparent 70%);
+}
+.welcome-card::after {
+  content: ""; position: absolute; width: 280px; height: 280px; border-radius: 50%;
+  right: -90px; bottom: -140px; background: rgba(255, 255, 255, .1); animation: k-float 12s ease-in-out infinite;
+}
+
+/* Cartões de módulos: entrada escalonada, brilho e elevação */
+.module-card, .morador-module .card, .morador-stat, .card {
+  transition: transform .28s cubic-bezier(.2, .8, .2, 1), box-shadow .28s ease, border-color .28s ease;
+}
+.row > [class*="col-"] > .menu-link, .row > [class*="col-"] > a > .module-card, .morador-grid > .morador-module, .morador-stat {
+  animation: k-fade-up .6s cubic-bezier(.2, .8, .2, 1) both;
+}
+.row > [class*="col-"]:nth-child(1) .module-card, .morador-grid > :nth-child(1), .row > [class*="col-"]:nth-child(1) .morador-stat { animation-delay: .05s; }
+.row > [class*="col-"]:nth-child(2) .module-card, .morador-grid > :nth-child(2), .row > [class*="col-"]:nth-child(2) .morador-stat { animation-delay: .10s; }
+.row > [class*="col-"]:nth-child(3) .module-card, .morador-grid > :nth-child(3), .row > [class*="col-"]:nth-child(3) .morador-stat { animation-delay: .15s; }
+.row > [class*="col-"]:nth-child(4) .module-card, .morador-grid > :nth-child(4) { animation-delay: .20s; }
+.row > [class*="col-"]:nth-child(5) .module-card, .morador-grid > :nth-child(5) { animation-delay: .25s; }
+.row > [class*="col-"]:nth-child(6) .module-card, .morador-grid > :nth-child(6) { animation-delay: .30s; }
+.row > [class*="col-"]:nth-child(n+7) .module-card, .morador-grid > :nth-child(n+7) { animation-delay: .35s; }
+
+.module-card, .morador-module .card { position: relative; overflow: hidden; }
+.module-card::before, .morador-module .card::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
+  background: linear-gradient(90deg, #6366f1, #0ea5e9, #a855f7); transform: scaleX(0); transform-origin: left;
+  transition: transform .35s ease;
+}
+.module-card:hover, .morador-module:hover .card { transform: translateY(-7px) !important; box-shadow: 0 24px 50px rgba(79, 70, 229, .22) !important; }
+.module-card:hover::before, .morador-module:hover .card::before { transform: scaleX(1); }
+.module-icon, .morador-icon {
+  background: linear-gradient(135deg, rgba(99, 102, 241, .16), rgba(14, 165, 233, .16)) !important;
+  transition: transform .3s cubic-bezier(.2, .8, .2, 1);
+}
+.module-card:hover .module-icon, .morador-module:hover .morador-icon { transform: scale(1.14) rotate(-6deg); }
+.morador-stat:hover, .card:hover { box-shadow: 0 16px 36px rgba(15, 23, 42, .12); }
+.morador-stat .h3 { background: linear-gradient(90deg, #4f46e5, #0ea5e9); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+
+/* Botões: gradiente, brilho que passa e "afundar" ao clicar */
+.btn { position: relative; overflow: hidden; transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+.btn:not(.btn-link):not(.koinon-notification-bell):not(.koinon-theme-toggle)::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: 0; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .38), transparent); transform: translateX(-120%) skewX(-20deg);
+}
+.btn:hover::after { animation: k-shine .75s ease; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(15, 23, 42, .16); }
+.btn:active { transform: translateY(0) scale(.97); box-shadow: none; }
+.btn-primary { background: linear-gradient(135deg, #4f46e5, #2563eb) !important; border-color: transparent !important; }
+.btn-success { background: linear-gradient(135deg, #16a34a, #10b981) !important; border-color: transparent !important; }
+.btn-warning { background: linear-gradient(135deg, #f59e0b, #fbbf24) !important; border-color: transparent !important; color: #1f2937 !important; }
+.btn-danger  { background: linear-gradient(135deg, #dc2626, #f43f5e) !important; border-color: transparent !important; }
+.btn-info    { background: linear-gradient(135deg, #0891b2, #22d3ee) !important; border-color: transparent !important; color: #0f172a !important; }
+
+/* Tabelas: cabeçalho com destaque e linhas que reagem ao mouse */
+.table > thead > tr > th { letter-spacing: .02em; border-bottom: 2px solid rgba(99, 102, 241, .35) !important; }
+.table > tbody > tr { transition: background-color .18s ease, transform .18s ease; }
+.table > tbody > tr:hover { background-color: rgba(99, 102, 241, .08) !important; }
+.table > tbody > tr:hover > td { background-color: transparent !important; }
+.card, .table-responsive { animation: k-fade-up .55s ease both; }
+.badge { transition: transform .2s ease, box-shadow .2s ease; }
+.badge:hover { transform: scale(1.08); box-shadow: 0 4px 12px rgba(15, 23, 42, .18); }
+
+/* Campos: brilho no foco */
+.form-control:focus, .form-select:focus {
+  border-color: #6366f1 !important; box-shadow: 0 0 0 .22rem rgba(99, 102, 241, .22) !important;
+}
+.alert { animation: k-fade-up .45s ease both; border: 0; border-left: 4px solid currentColor; }
+
+/* Linha do tempo das ocorrências com pulso no último evento */
+.oc-timeline li:last-child::before { animation: k-pulse 2s infinite; }
+
+/* Revelar ao rolar (ativado pelo script.js) */
+.k-reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .8, .2, 1); }
+.k-reveal.k-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .k-reveal { opacity: 1; transform: none; }
+}
+
+
+/* ==========================================================
+   KOINON V15 — PUSH (aviso em tempo real) E PAGAMENTOS
+========================================================== */
+.k-toasts { position: fixed; right: 18px; bottom: 18px; z-index: 4000; display: flex; flex-direction: column; gap: 12px; max-width: min(380px, calc(100vw - 36px)); }
+.k-toast { position: relative; display: flex; align-items: stretch; gap: 12px; padding: 14px 40px 14px 0; border-radius: 16px; overflow: hidden;
+  background: var(--k-surface, #fff); color: var(--k-text, #0f172a); text-decoration: none; border: 1px solid var(--k-border, #e2e8f0);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, .28); animation: k-toast-in .5s cubic-bezier(.2, 1.2, .3, 1) both; }
+.k-toast.is-out { animation: k-toast-out .4s ease both; }
+.k-toast__bar { width: 6px; flex: 0 0 6px; background: linear-gradient(180deg, #4f46e5, #0ea5e9); }
+.k-toast--success .k-toast__bar { background: linear-gradient(180deg, #16a34a, #10b981); }
+.k-toast__body { display: flex; flex-direction: column; gap: 2px; font-size: .9rem; }
+.k-toast__body span { color: var(--k-muted, #64748b); font-size: .82rem; }
+.k-toast__x { position: absolute; top: 6px; right: 8px; border: 0; background: transparent; font-size: 1.3rem; line-height: 1; color: var(--k-muted, #64748b); cursor: pointer; }
+.k-toast:hover { color: var(--k-text, #0f172a); transform: translateY(-2px); }
+@keyframes k-toast-in { from { opacity: 0; transform: translateX(60px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes k-toast-out { to { opacity: 0; transform: translateX(60px); } }
