@@ -13,3 +13,6 @@
 !/assets/img/*/.gitkeep
 /assets/img/achado_perdido_*
 /storage/limites/*.json
+
+# Documentos do TCC (Word/PDF): ficam fora do repositório de código
+/docs_tcc/
