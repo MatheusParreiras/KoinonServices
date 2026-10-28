@@ -140,17 +140,21 @@ class Csrf
         }
         $ativo = true;
 
+        ob_start(static fn (string $html): string => self::inserirCampo($html, $token));
+    }
+
+    /** Devolve o HTML com o campo _csrf logo após cada <form method="post">. */
+    public static function inserirCampo(string $html, string $token): string
+    {
         $campo = '<input type="hidden" name="_csrf" value="' . htmlspecialchars($token, ENT_QUOTES, "UTF-8") . '">';
 
-        ob_start(static function (string $html) use ($campo): string {
-            return preg_replace_callback(
-                '/<form\b[^>]*>/i',
-                static fn (array $m): string => preg_match('/\bmethod\s*=\s*["\']?post\b/i', $m[0])
-                    ? $m[0] . $campo
-                    : $m[0],
-                $html
-            ) ?? $html;
-        });
+        return preg_replace_callback(
+            '/<form\b[^>]*>/i',
+            static fn (array $m): string => preg_match('/\bmethod\s*=\s*["\']?post\b/i', $m[0])
+                ? $m[0] . $campo
+                : $m[0],
+            $html
+        ) ?? $html;
     }
 
     /** Registra "quem fez o quê" (service/Auditoria.php). */
