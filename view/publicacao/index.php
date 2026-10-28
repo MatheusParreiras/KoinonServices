@@ -1,11 +1,13 @@
 <?php
 
+require_once __DIR__ . "/../../service/Sessao.php";
+
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 
 PermissaoController::exigirGestao();
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
+    Sessao::iniciar();
 }
 
 require_once __DIR__ . "/../../controller/PublicacaoController.php";

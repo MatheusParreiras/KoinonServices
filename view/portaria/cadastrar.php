@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/../../service/Sessao.php";
+
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../service/Erro.php";
 
@@ -97,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
          */
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
+            Sessao::iniciar();
         }
 
         if (isset($_SESSION["usuario_id"])) {

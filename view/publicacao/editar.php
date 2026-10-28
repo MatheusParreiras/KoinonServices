@@ -2,7 +2,7 @@
 <?php
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
+    Sessao::iniciar();
 }
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";

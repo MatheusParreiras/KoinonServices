@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . "/Sessao.php";
+
 /*
  * ==========================================================
  * PROTEÇÃO CONTRA CSRF (Cross-Site Request Forgery)
@@ -36,7 +38,7 @@ class Csrf
     public static function token(): string
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
+            Sessao::iniciar();
         }
 
         if (empty($_SESSION["_csrf"])) {

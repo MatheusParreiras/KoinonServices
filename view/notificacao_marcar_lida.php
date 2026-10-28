@@ -1,5 +1,7 @@
 <?php
-if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+
+require_once __DIR__ . "/../service/Sessao.php";
+if (session_status() !== PHP_SESSION_ACTIVE) Sessao::iniciar();
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../controller/NotificacaoController.php';
 if (empty($_SESSION['usuario_id'])) { http_response_code(401); echo json_encode(['ok'=>false]); exit; }

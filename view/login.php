@@ -1,7 +1,9 @@
 <?php
 
+require_once __DIR__ . "/../service/Sessao.php";
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
+    Sessao::iniciar();
 }
 
 require_once __DIR__ . "/../model/dao/Conexao.php";
@@ -15,6 +17,11 @@ if (!in_array($tipoAcesso, ["morador", "funcionario"], true)) {
 $erro = null;
 $aviso = null;
 $linkDemo = null;
+
+if (!empty($_SESSION["sessao_expirada"])) {
+    unset($_SESSION["sessao_expirada"]);
+    $aviso = "Sua sessão foi encerrada por inatividade. Entre novamente.";
+}
 $identificadorInformado = trim($_POST["identificador"] ?? $_POST["cpf"] ?? "");
 $primeiroAcesso = false;
 

@@ -1,7 +1,9 @@
 <?php
 
+require_once __DIR__ . "/../service/Sessao.php";
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
+    Sessao::iniciar();
 }
 
 header('Content-Type: application/json; charset=UTF-8');

@@ -21,6 +21,9 @@ return [
      */
     "base_path" => "",
 
+    /* Minutos sem abrir nenhuma página até a sessão ser encerrada. */
+    "sessao_inatividade_minutos" => 30,
+
     /* Banco de dados. Os valores abaixo são os do XAMPP. */
     "banco" => [
         "host" => "127.0.0.1",

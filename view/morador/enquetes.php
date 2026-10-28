@@ -1,6 +1,8 @@
 <?php
 
-session_start();
+require_once __DIR__ . "/../../service/Sessao.php";
+
+Sessao::iniciar();
 
 require_once __DIR__ . "/../../controller/PermissaoController.php";
 require_once __DIR__ . "/../../controller/PublicacaoController.php";

@@ -1,9 +1,11 @@
 <?php
 
+require_once __DIR__ . "/../service/Sessao.php";
+
 require_once __DIR__ . "/../service/Configuracao.php";
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
+    Sessao::iniciar();
 }
 
 $nome = $_SESSION["usuario_nome"] ?? "Usuário";
