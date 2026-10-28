@@ -8,6 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../model/dao/Conexao.php";
 require_once __DIR__ . "/../service/PasswordLinkService.php";
+require_once __DIR__ . "/../service/LimiteTentativas.php";
 
 $erro = null;
 $sucesso = null;
@@ -23,11 +24,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $cpf = preg_replace('/\D+/', '', trim($_POST["cpf"] ?? ""));
     $canal = strtolower(trim($_POST["canal"] ?? "email"));
 
+    // Até 3 pedidos por CPF e 10 por IP a cada 15 minutos (evita encher a caixa de alguém de links).
+    $limite = new LimiteTentativas();
+    $janela = 15 * 60;
+    $espera = max(
+        $limite->bloqueadoPor("senha-cpf:" . $cpf, 3, $janela),
+        $limite->bloqueadoPor("senha-ip:" . LimiteTentativas::ip(), 10, $janela)
+    );
+
     if ($cpf === "") {
         $erro = "Informe o CPF cadastrado.";
     } elseif (!in_array($canal, ["email", "whatsapp"], true)) {
         $erro = "Selecione um canal válido.";
+    } elseif ($espera > 0) {
+        $erro = "Muitas solicitações. Aguarde " . LimiteTentativas::minutos($espera) . " minuto(s) e tente novamente.";
     } else {
+        $limite->registrar("senha-cpf:" . $cpf, $janela);
+        $limite->registrar("senha-ip:" . LimiteTentativas::ip(), $janela);
+
         try {
             $pdo = Conexao::conectar();
             $stmt = $pdo->prepare(

@@ -12,3 +12,4 @@
 /assets/img/*/*
 !/assets/img/*/.gitkeep
 /assets/img/achado_perdido_*
+/storage/limites/*.json

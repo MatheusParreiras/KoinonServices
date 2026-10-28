@@ -8,6 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 require_once __DIR__ . "/../model/dao/Conexao.php";
 require_once __DIR__ . "/../service/PasswordLinkService.php";
+require_once __DIR__ . "/../service/LimiteTentativas.php";
 
 $tipoAcesso = strtolower(trim($_GET["tipo"] ?? $_POST["tipo"] ?? "morador"));
 if (!in_array($tipoAcesso, ["morador", "funcionario"], true)) {
@@ -36,8 +37,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $cpf = cpfLimpo($identificador);
     $email = filter_var($identificador, FILTER_VALIDATE_EMAIL) ? strtolower($identificador) : "";
 
+    /*
+     * Até 5 senhas erradas por conta e 20 por IP a cada 15 minutos.
+     * As mensagens são as mesmas para conta inexistente e senha errada,
+     * para não revelar quais CPFs/e-mails estão cadastrados.
+     */
+    $limite = new LimiteTentativas();
+    $janela = 15 * 60;
+    $chaveConta = "login-conta:" . ($email !== "" ? $email : $cpf);
+    $chaveIp = "login-ip:" . LimiteTentativas::ip();
+    $espera = max(
+        $limite->bloqueadoPor($chaveConta, 5, $janela),
+        $limite->bloqueadoPor($chaveIp, 20, $janela)
+    );
+    $falhou = false;
+    $mensagemSemSenha = "Informe sua senha. Se for o seu primeiro acesso, enviamos para o e-mail (ou WhatsApp) cadastrado um link para você criar a senha.";
+
     if ($identificador === "") {
         $erro = "Informe seu CPF ou e-mail.";
+    } elseif ($espera > 0) {
+        $erro = "Muitas tentativas. Aguarde " . LimiteTentativas::minutos($espera) . " minuto(s) e tente novamente.";
     } else {
         try {
             $conexao = Conexao::conectar();
@@ -53,12 +72,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt->bindValue(":cpf", $cpf, PDO::PARAM_STR);
             $stmt->bindValue(":email", $email, PDO::PARAM_STR);
             $stmt->execute();
-            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+            $usuario = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 
-            if (!$usuario) {
-                $erro = "CPF ou e-mail não encontrado.";
-            } elseif ((int) $usuario["ativo"] !== 1) {
-                $erro = "Este usuário está inativo.";
+            if ($usuario !== null && (int) $usuario["ativo"] !== 1) {
+                $usuario = null;
+            }
+
+            $senhaDefinida = $usuario !== null && (int) ($usuario["senha_definida"] ?? 1) === 1;
+            $primeiroAcesso = $usuario !== null && !$senhaDefinida;
+
+            if ($senha === "") {
+                /*
+                 * Senha em branco: mesma resposta exista a conta ou não.
+                 * Primeiro acesso não entra sem senha (quem sabe o CPF ou o
+                 * e-mail de alguém tomaria a conta): a senha é criada pelo
+                 * link enviado ao e-mail (ou WhatsApp) cadastrado.
+                 */
+                $aviso = $mensagemSemSenha;
+
+                if ($primeiroAcesso) {
+                    $limite->registrar($chaveConta, $janela);
+                    $canal = !empty($usuario["email"]) ? "email" : "whatsapp";
+                    $envio = (new PasswordLinkService())->enviarLinkSenha($usuario, $canal);
+
+                    if ($envio["link_demo"] !== null) {
+                        $aviso = "Primeiro acesso (modo demonstração): o envio não foi concluído, então o link para criar a senha está abaixo.";
+                        $linkDemo = $envio["link_demo"];
+                    }
+                }
+            } elseif (
+                // password_verify também roda sem conta, para o tempo de resposta não denunciar quem existe
+                !password_verify($senha, $senhaDefinida ? $usuario["senha_hash"] : '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG')
+                || !$senhaDefinida
+            ) {
+                $erro = "CPF/e-mail ou senha inválidos.";
+                $falhou = true;
             } else {
                 $perfil = $usuario["perfil"];
                 $perfilPermitido =
@@ -74,58 +122,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         ? "Este acesso é destinado aos moradores."
                         : "Este acesso é destinado aos funcionários.";
                 } else {
-                    $senhaDefinida = (int) ($usuario["senha_definida"] ?? 1) === 1;
-                    $primeiroAcesso = !$senhaDefinida;
+                    $limite->limpar($chaveConta);
+                    session_regenerate_id(true);
 
-                    if ($primeiroAcesso) {
-                        /*
-                         * Primeiro acesso não entra sem senha: quem sabe o CPF
-                         * ou o e-mail de alguém tomaria a conta. A senha é
-                         * criada pelo link enviado ao e-mail (ou WhatsApp)
-                         * cadastrado; depois o login é o normal.
-                         */
-                        $canal = !empty($usuario["email"]) ? "email" : "whatsapp";
-                        $envio = (new PasswordLinkService())->enviarLinkSenha($usuario, $canal);
+                    $_SESSION["usuario_id"] = (int) $usuario["id"];
+                    $_SESSION["usuario_nome"] = $usuario["nome"];
+                    $_SESSION["usuario_email"] = $usuario["email"];
+                    $_SESSION["usuario_telefone"] = $usuario["telefone"] ?? "";
+                    $_SESSION["usuario_perfil"] = $usuario["perfil"];
+                    $_SESSION["usuario_unidade_id"] = $usuario["unidade_id"];
+                    $_SESSION["lgpd_aceito"] = (bool) ($usuario["termo_lgpd"] ?? false);
+                    $_SESSION["primeiro_acesso"] = false;
+                    $_SESSION["_ultima_atividade"] = time();
 
-                        if ($envio["link_demo"] !== null) {
-                            $aviso = "Primeiro acesso (modo demonstração): o envio não foi concluído, então o link para criar a senha está abaixo.";
-                            $linkDemo = $envio["link_demo"];
-                        } elseif ($envio["enviado"]) {
-                            $aviso = $canal === "email"
-                                ? "Primeiro acesso: enviamos para o e-mail cadastrado um link para você criar sua senha."
-                                : "Primeiro acesso: enviamos para o WhatsApp cadastrado um link para você criar sua senha.";
-                        } else {
-                            $erro = "Primeiro acesso: não foi possível enviar o link para criar sua senha. Tente novamente mais tarde ou procure a administração do condomínio.";
-                        }
-                    } elseif ($senha === "") {
-                        $erro = "Informe sua senha.";
-                    } elseif (!password_verify($senha, $usuario["senha_hash"])) {
-                        $erro = "CPF ou senha inválidos.";
-                    } else {
-                        session_regenerate_id(true);
-
-                        $_SESSION["usuario_id"] = (int) $usuario["id"];
-                        $_SESSION["usuario_nome"] = $usuario["nome"];
-                        $_SESSION["usuario_email"] = $usuario["email"];
-                        $_SESSION["usuario_telefone"] = $usuario["telefone"] ?? "";
-                        $_SESSION["usuario_perfil"] = $usuario["perfil"];
-                        $_SESSION["usuario_unidade_id"] = $usuario["unidade_id"];
-                        $_SESSION["lgpd_aceito"] = (bool) ($usuario["termo_lgpd"] ?? false);
-                        $_SESSION["primeiro_acesso"] = $primeiroAcesso;
-
-                        if (!$usuario["termo_lgpd"]) {
-                            header("Location: lgpd.php");
-                            exit;
-                        }
-
-                        header(
-                            $perfil === "Morador"
-                                ? "Location: morador/index.php"
-                                : "Location: dashboard.php"
-                        );
+                    if (!$usuario["termo_lgpd"]) {
+                        header("Location: lgpd.php");
                         exit;
                     }
+
+                    header(
+                        $perfil === "Morador"
+                            ? "Location: morador/index.php"
+                            : "Location: dashboard.php"
+                    );
+                    exit;
                 }
+            }
+
+            if ($falhou) {
+                $limite->registrar($chaveConta, $janela);
+                $limite->registrar($chaveIp, $janela);
             }
         } catch (Throwable $e) {
             $erro = "Não foi possível realizar o login. Verifique a conexão com o banco de dados.";
